@@ -7,6 +7,11 @@ import type {
   GradingResult 
 } from '@/types';
 import { QuestionType } from '@/types';
+import { 
+  quizGenerationService, 
+  quizGradingService, 
+  checkLLMConfig
+} from '@/llm';
 
 /**
  * 应用主状态管理store
@@ -34,7 +39,7 @@ interface AppStore extends AppState {
 
 /**
  * 模拟LLM API调用 - 生成试卷
- * 在实际项目中，这里会调用真实的LLM API
+ * 当LLM配置不完整时使用的备用方案
  */
 const mockGenerateQuiz = async (request: GenerationRequest): Promise<Quiz> => {
   // 模拟网络延迟
@@ -96,8 +101,10 @@ const mockGenerateQuiz = async (request: GenerationRequest): Promise<Quiz> => {
             id,
             type: QuestionType.CODE_OUTPUT,
             question: `代码输出题 ${i + 1}：请写出以下代码的输出结果`,
-            code: `console.log('Hello, ${request.subject}!');\nconsole.log(1 + 2);`,
-            correctOutput: `Hello, ${request.subject}!\n3`
+            code: `console.log('Hello, ${request.subject}!');
+console.log(1 + 2);`,
+            correctOutput: `Hello, ${request.subject}!
+3`
           });
           break;
         }
@@ -126,7 +133,7 @@ const mockGenerateQuiz = async (request: GenerationRequest): Promise<Quiz> => {
 
 /**
  * 模拟LLM API调用 - 批改试卷
- * 在实际项目中，这里会调用真实的LLM API
+ * 当LLM配置不完整时使用的备用方案
  */
 const mockGradeQuiz = async (quiz: Quiz): Promise<GradingResult> => {
   // 模拟网络延迟
@@ -210,8 +217,25 @@ export const useAppStore = create<AppStore>((set, get) => ({
     }));
     
     try {
-      const quiz = await mockGenerateQuiz(request);
-      set((state) => ({
+      // 检查LLM配置是否完整
+      const hasLLMConfig = checkLLMConfig();
+      
+      if (hasLLMConfig) {
+        // 使用真实LLM API生成试卷
+        const streamCallback = (partialQuiz: Quiz | undefined, progress: number) => {
+          set(state => ({
+            ...state,
+            generation: {
+              ...state.generation,
+              currentQuiz: partialQuiz || state.generation.currentQuiz,
+              progress
+            }
+          }));
+        };
+        
+        const quiz = await quizGenerationService.generateQuizStream(request, streamCallback);
+        
+        set((state) => ({
           ...state,
           generation: {
             status: 'complete',
@@ -223,7 +247,25 @@ export const useAppStore = create<AppStore>((set, get) => ({
             isSubmitted: false
           }
         }));
+      } else {
+        // 使用模拟API作为备用方案
+        console.warn('LLM配置不完整，使用模拟API生成试卷');
+        const quiz = await mockGenerateQuiz(request);
+        set((state) => ({
+          ...state,
+          generation: {
+            status: 'complete',
+            currentQuiz: quiz,
+            error: null
+          },
+          answering: {
+            currentQuestionIndex: 0,
+            isSubmitted: false
+          }
+        }));
+      }
     } catch (error) {
+      console.error('生成试卷失败:', error);
       set((state) => ({
           ...state,
           generation: {
@@ -300,16 +342,47 @@ export const useAppStore = create<AppStore>((set, get) => ({
     }));
     
     try {
-      const result = await mockGradeQuiz(generation.currentQuiz);
-      set((state) => ({
-        ...state,
-        grading: {
-          status: 'complete',
-          result,
-          error: null
-        }
-      }));
+      // 检查LLM配置是否完整
+      const hasLLMConfig = checkLLMConfig();
+      
+      if (hasLLMConfig) {
+        // 使用真实LLM API批改试卷
+        const streamCallback = (partialResult: GradingResult | undefined, progress: number) => {
+          set(state => ({
+            ...state,
+            grading: {
+              ...state.grading,
+              result: partialResult || state.grading.result,
+              progress
+            }
+          }));
+        };
+        
+        const result = await quizGradingService.gradeQuizStream(generation.currentQuiz, streamCallback);
+        
+        set((state) => ({
+          ...state,
+          grading: {
+            status: 'complete',
+            result,
+            error: null
+          }
+        }));
+      } else {
+        // 使用模拟API作为备用方案
+        console.warn('LLM配置不完整，使用模拟API批改试卷');
+        const result = await mockGradeQuiz(generation.currentQuiz);
+        set((state) => ({
+          ...state,
+          grading: {
+            status: 'complete',
+            result,
+            error: null
+          }
+        }));
+      }
     } catch (error) {
+      console.error('批改试卷失败:', error);
       set((state) => ({
         ...state,
         grading: {

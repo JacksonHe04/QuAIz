@@ -133,6 +133,7 @@ export interface GenerationState {
   status: 'idle' | 'generating' | 'complete' | 'error';
   currentQuiz: Quiz | null;
   error: string | null;
+  progress?: number; // 生成进度 0-100
 }
 
 /** 答题状态 */
@@ -146,6 +147,7 @@ export interface GradingState {
   status: 'idle' | 'grading' | 'complete' | 'error';
   result: GradingResult | null;
   error: string | null;
+  progress?: number; // 批改进度 0-100
 }
 
 /** 全局状态 */
@@ -172,6 +174,9 @@ export interface LLMGradingResponse {
 // ================================
 // 工具类型
 // ================================
+
+// 流式输出回调类型
+export type StreamCallback<T = Quiz | GradingResult> = (partialData: T, progress: number) => void;
 
 /** 题目类型判断 */
 export const isQuestionType = <T extends QuestionType>(
