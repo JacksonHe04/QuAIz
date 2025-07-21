@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAppStore } from '@/stores/useAppStore';
-import type { GenerationRequest } from '@/types';
+import type { GenerationRequest, QuestionPreset } from '@/types';
 import { QuestionType } from '@/types';
+import { getPresets, savePreset, deletePreset, generatePresetName } from '@/utils/presetStorage';
 
 /**
  * 题目生成页面
@@ -16,6 +17,13 @@ export const GenerationPage: React.FC = () => {
     description: '',
     questionConfigs: []
   });
+  
+  // 预设相关状态
+  const [presets, setPresets] = useState<QuestionPreset[]>([]);
+  const [showPresetModal, setShowPresetModal] = useState(false);
+  const [showSaveModal, setShowSaveModal] = useState(false);
+  const [presetName, setPresetName] = useState('');
+  const [presetDescription, setPresetDescription] = useState('');
 
   // 题型选项配置
   const questionTypeOptions = [
@@ -26,6 +34,89 @@ export const GenerationPage: React.FC = () => {
     { type: QuestionType.CODE_OUTPUT, label: '代码输出题', description: '根据代码写出运行结果' },
     { type: QuestionType.CODE_WRITING, label: '代码编写题', description: '编写代码实现指定功能' }
   ];
+
+  // 加载预设列表
+  useEffect(() => {
+    loadPresets();
+  }, []);
+
+  /**
+   * 加载预设列表
+   */
+  const loadPresets = () => {
+    const savedPresets = getPresets();
+    setPresets(savedPresets);
+  };
+
+  /**
+   * 应用预设方案
+   */
+  const applyPreset = (preset: QuestionPreset) => {
+    setFormData(prev => ({
+      ...prev,
+      subject: preset.subject || '',
+      description: preset.description_content || '',
+      questionConfigs: [...preset.questionConfigs]
+    }));
+    setShowPresetModal(false);
+  };
+
+  /**
+   * 保存当前方案为预设
+   */
+  const handleSavePreset = () => {
+    if (formData.questionConfigs.length === 0) {
+      alert('请先配置题型后再保存预设');
+      return;
+    }
+    
+    const suggestedName = generatePresetName(formData.questionConfigs);
+    setPresetName(suggestedName);
+    setPresetDescription('');
+    setShowSaveModal(true);
+  };
+
+  /**
+   * 确认保存预设
+   */
+  const confirmSavePreset = () => {
+    if (!presetName.trim()) {
+      alert('请输入预设名称');
+      return;
+    }
+    
+    try {
+      savePreset({
+        name: presetName.trim(),
+        description: presetDescription.trim(),
+        subject: formData.subject,
+        description_content: formData.description,
+        questionConfigs: formData.questionConfigs
+      });
+      
+      loadPresets();
+      setShowSaveModal(false);
+      setPresetName('');
+      setPresetDescription('');
+      alert('预设保存成功！');
+    } catch {
+       alert('保存预设失败，请重试');
+     }
+  };
+
+  /**
+   * 删除预设
+   */
+  const handleDeletePreset = (presetId: string, presetName: string) => {
+    if (confirm(`确定要删除预设"${presetName}"吗？`)) {
+      try {
+        deletePreset(presetId);
+        loadPresets();
+      } catch {
+         alert('删除预设失败，请重试');
+       }
+    }
+  };
 
   const handleSubjectChange = (value: string) => {
     setFormData(prev => ({ ...prev, subject: value }));
@@ -105,9 +196,9 @@ export const GenerationPage: React.FC = () => {
       <div className="max-w-4xl mx-auto px-4">
         <div className="bg-white rounded-lg shadow-lg overflow-hidden">
           {/* 页面头部 */}
-          <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-6">
-            <h1 className="text-3xl font-bold text-white mb-2">QuAIz - AI智能出题</h1>
-            <p className="text-blue-100">配置您的需求，让AI为您生成个性化试卷</p>
+          <div className="bg-white px-8 py-6 border-b border-gray-200">
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">QuAIz AI 刷题</h1>
+            <p className="text-gray-500">Quiz You By AI Zipply</p>
           </div>
 
           <form onSubmit={handleSubmit} className="p-8">
@@ -121,7 +212,7 @@ export const GenerationPage: React.FC = () => {
                   type="text"
                   value={formData.subject}
                   onChange={(e) => handleSubjectChange(e.target.value)}
-                  placeholder="例如：JavaScript基础、数据结构、机器学习等"
+                  placeholder="请输入学科或主题，如：数学、编程、历史等"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   required
                 />
@@ -143,7 +234,27 @@ export const GenerationPage: React.FC = () => {
 
             {/* 题型配置 */}
             <div className="mb-8">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">题型配置</h3>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-medium text-gray-900">题型配置</h3>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowPresetModal(true)}
+                    className="px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
+                  >
+                    加载预设
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSavePreset}
+                    disabled={formData.questionConfigs.length === 0}
+                    className="px-4 py-2 text-sm bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    保存预设
+                  </button>
+                </div>
+              </div>
+              
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {questionTypeOptions.map((option) => {
                   const count = getQuestionCount(option.type);
@@ -216,6 +327,174 @@ export const GenerationPage: React.FC = () => {
           </form>
         </div>
       </div>
+
+      {/* 预设选择模态框 */}
+      {showPresetModal && (
+        <div className="fixed inset-0 bg-opacity-10 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-2xl max-w-2xl w-full mx-4 max-h-[80vh] overflow-hidden border border-gray-200">
+            <div className="px-6 py-4 border-b border-gray-200">
+              <h3 className="text-lg font-medium text-gray-900">选择预设方案</h3>
+            </div>
+            
+            <div className="p-6 overflow-y-auto max-h-[60vh]">
+              {presets.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  <p>暂无保存的预设方案</p>
+                  <p className="text-sm mt-2">配置题型后点击"保存预设"来创建您的第一个预设</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {presets.map((preset) => {
+                    return (
+                      <div key={preset.id} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <h4 className="font-medium text-gray-900 mb-1">{preset.name}</h4>
+                            {preset.description && (
+                              <p className="text-sm text-gray-600 mb-2">{preset.description}</p>
+                            )}
+                            {preset.subject && (
+                              <p className="text-sm text-gray-700 mb-1"><span className="font-medium">学科/主题:</span> {preset.subject}</p>
+                            )}
+                            {preset.description_content && (
+                              <p className="text-sm text-gray-600 mb-2 line-clamp-2"><span className="font-medium">详细描述:</span> {preset.description_content}</p>
+                            )}
+                            <div className="flex flex-wrap gap-2 text-xs">
+                              {preset.questionConfigs.map((config) => {
+                                const option = questionTypeOptions.find(opt => opt.type === config.type);
+                                return (
+                                  <span key={config.type} className="bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                                    {option?.label}: {config.count}题
+                                  </span>
+                                );
+                              })}
+                            </div>
+                            <p className="text-xs text-gray-500 mt-2">
+                              总计 {preset.questionConfigs.reduce((sum, config) => sum + config.count, 0)} 题 • 创建于 {new Date(preset.createdAt).toLocaleDateString()}
+                            </p>
+                          </div>
+                          <div className="flex gap-2 ml-4">
+                            <button
+                              type="button"
+                              onClick={() => applyPreset(preset)}
+                              className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+                            >
+                              应用
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDeletePreset(preset.id, preset.name)}
+                              className="px-3 py-1 text-sm bg-red-100 text-red-700 rounded hover:bg-red-200"
+                            >
+                              删除
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+            
+            <div className="px-6 py-4 border-t border-gray-200 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setShowPresetModal(false)}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800"
+              >
+                关闭
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 保存预设模态框 */}
+      {showSaveModal && (
+        <div className="fixed inset-0 bg-opacity-10 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-2xl max-w-md w-full mx-4 border border-gray-200">
+            <div className="px-6 py-4 border-b border-gray-200">
+              <h3 className="text-lg font-medium text-gray-900">保存预设方案</h3>
+            </div>
+            
+            <div className="p-6">
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    预设名称 *
+                  </label>
+                  <input
+                    type="text"
+                    value={presetName}
+                    onChange={(e) => setPresetName(e.target.value)}
+                    placeholder="请输入预设名称"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    预设描述
+                  </label>
+                  <textarea
+                    value={presetDescription}
+                    onChange={(e) => setPresetDescription(e.target.value)}
+                    placeholder="可选：描述这个预设的用途或特点"
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+                
+                <div className="bg-gray-50 rounded-lg p-3">
+                  <h4 className="text-sm font-medium text-gray-700 mb-2">当前配置预览：</h4>
+                  <div className="space-y-1 text-sm text-gray-600">
+                    {formData.subject && (
+                      <div className="mb-2">
+                        <span className="font-medium">学科/主题:</span> {formData.subject}
+                      </div>
+                    )}
+                    {formData.description && (
+                      <div className="mb-2">
+                        <span className="font-medium">详细描述:</span> 
+                        <span className="line-clamp-2">{formData.description}</span>
+                      </div>
+                    )}
+                    {formData.questionConfigs.map((config) => {
+                      const option = questionTypeOptions.find(opt => opt.type === config.type);
+                      return (
+                        <div key={config.type}>
+                          {option?.label}: {config.count} 题
+                        </div>
+                      );
+                    })}
+                    <div className="font-medium text-gray-700 pt-1 border-t border-gray-200">
+                      总计: {getTotalQuestions()} 题
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setShowSaveModal(false)}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800"
+              >
+                取消
+              </button>
+              <button
+                type="button"
+                onClick={confirmSavePreset}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              >
+                保存
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

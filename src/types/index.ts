@@ -30,6 +30,22 @@ export interface GenerationRequest {
 }
 
 // ================================
+// 预设方案
+// ================================
+
+/** 题型方案预设 */
+export interface QuestionPreset {
+  id: string;                              // 预设唯一标识
+  name: string;                            // 预设名称
+  description?: string;                    // 预设描述
+  subject: string;                         // 学科/主题
+  description_content?: string;            // 详细描述内容
+  questionConfigs: QuestionConfig[];       // 题型配置
+  createdAt: number;                       // 创建时间
+  updatedAt: number;                       // 更新时间
+}
+
+// ================================
 // 题目定义
 // ================================
 

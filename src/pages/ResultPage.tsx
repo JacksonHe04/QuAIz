@@ -62,24 +62,24 @@ export const ResultPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* 顶部成绩概览 */}
-      <div className="bg-gradient-to-r from-green-600 to-blue-600 text-white">
+      <div className="bg-white text-gray-800 border-b border-gray-200">
         <div className="max-w-6xl mx-auto px-4 py-8">
           <div className="text-center">
             <h1 className="text-3xl font-bold mb-4">批改完成！</h1>
-            <div className="bg-white/10 rounded-lg p-6 max-w-md mx-auto">
+            <div className="bg-gray-50 rounded-lg p-6 max-w-md mx-auto border border-gray-200">
               <div className="text-4xl font-bold mb-2 ${getScoreColor(scorePercentage)}">
                 {result.totalScore} / {result.maxScore}
               </div>
-              <div className="text-xl mb-2">
+              <div className="text-xl mb-2 text-gray-700">
                 {scorePercentage.toFixed(1)}% - {getScoreLevel(scorePercentage)}
               </div>
-              <div className="bg-white/20 rounded-full h-3 mb-2">
+              <div className="bg-gray-200 rounded-full h-3 mb-2">
                 <div 
-                  className="bg-white h-3 rounded-full transition-all duration-1000"
+                  className="bg-blue-500 h-3 rounded-full transition-all duration-1000"
                   style={{ width: `${scorePercentage}%` }}
                 ></div>
               </div>
-              <p className="text-white/90">{result.overallFeedback}</p>
+              <p className="text-gray-600">{result.overallFeedback}</p>
             </div>
           </div>
         </div>
