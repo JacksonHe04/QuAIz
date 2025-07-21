@@ -1,3 +1,3 @@
-export { GenerationPage } from './GenerationPage';
-export { QuizPage } from './QuizPage';
-export { ResultPage } from './ResultPage';
+export { GenerationPage } from './generation';
+export { QuizPage } from './quiz';
+export { ResultPage } from './result';
