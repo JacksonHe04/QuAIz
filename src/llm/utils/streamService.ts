@@ -249,7 +249,7 @@ export async function executeLLMRequest(
     });
     
     logger.llm.info(`收到LLM响应，开始验证格式`, { requestId });
-    return response;
+    return response.content;
   } catch (error) {
     handleLLMError(error, requestId, operation);
   }

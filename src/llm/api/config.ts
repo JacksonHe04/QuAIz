@@ -14,7 +14,6 @@ export interface LLMConfig {
 
 /**
  * 默认LLM配置
- * 可以根据不同的LLM提供商进行调整
  */
 export const DEFAULT_LLM_CONFIG: LLMConfig = {
   apiKey: import.meta.env.VITE_LLM_API_KEY || '',
