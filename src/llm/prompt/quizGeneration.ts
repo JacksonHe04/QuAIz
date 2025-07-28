@@ -244,5 +244,3 @@ export function validateQuizJSON(jsonStr: string): { isValid: boolean; error?: s
     };
   }
 }
-
-// JSON提取功能已移至 utils/jsonUtils.ts
