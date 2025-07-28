@@ -3,6 +3,9 @@ import type { GenerationRequest } from '@/types';
 import { QuestionType } from '@/types';
 import { QuestionTypeSelector } from './QuestionTypeSelector';
 import { GenerationPreview } from './GenerationPreview';
+import { executeTextStreamLLMRequest } from '@/llm/utils/streamService';
+import { LLMClient } from '@/llm/api/client';
+import { logger } from '@/stores/useLogStore';
 
 interface GenerationFormProps {
   formData: GenerationRequest;
@@ -104,7 +107,43 @@ export const GenerationForm: React.FC<GenerationFormProps> = ({
       />
 
       {/* 提交按钮 */}
-      <div className="flex justify-end">
+      <div className="flex justify-end gap-4">
+        <button
+          type="button"
+          onClick={async () => {
+            try {
+              const client = new LLMClient();
+              const messages = [{
+                role: 'user' as const,
+                content: '请写一首关于春天的诗，要求优美动人，大约100字左右。'
+              }];
+              
+              logger.info('开始测试流式LLM请求', 'system', { test: true });
+                
+                await executeTextStreamLLMRequest(
+                  client,
+                  messages,
+                  `test-${Date.now()}`,
+                  '测试流式回复',
+                  {
+                    temperature: 0.8,
+                    maxTokens: 500,
+                    onProgress: (_, chunk) => {
+                     console.log('收到新内容片段:', chunk);
+                   }
+                  }
+                );
+                
+                logger.success('流式测试完成', 'system', { test: true });
+              } catch (error) {
+                logger.error('流式测试失败', 'system', { error: error instanceof Error ? error.message : '未知错误' });
+            }
+          }}
+          className="px-6 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors"
+        >
+          测试流式回复
+        </button>
+        
         <button
           type="submit"
           disabled={isGenerating || !formData.subject.trim() || formData.questionConfigs.length === 0}

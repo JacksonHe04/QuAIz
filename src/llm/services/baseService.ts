@@ -8,6 +8,7 @@ import { generateRequestId } from '../utils/errorUtils';
 import { fixIncompleteJSON } from '../utils/jsonUtils';
 import { 
   executeStreamLLMRequest, 
+  executeTextStreamLLMRequest,
   executeLLMRequest,
   type ProgressCallback,
   type ValidationResult
@@ -68,6 +69,22 @@ export abstract class BaseLLMService {
     }
   ): Promise<T> {
     return executeStreamLLMRequest(this.llmClient, messages, requestId, operation, options);
+  }
+
+  /**
+   * 执行纯文本流式LLM请求
+   */
+  protected async executeTextStreamLLMRequest(
+    messages: Message[],
+    requestId: string,
+    operation: string,
+    options: {
+      temperature?: number;
+      maxTokens?: number;
+      onProgress?: (content: string, chunk: string) => void;
+    } = {}
+  ): Promise<string> {
+    return executeTextStreamLLMRequest(this.llmClient, messages, requestId, operation, options);
   }
 
   /**

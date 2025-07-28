@@ -13,12 +13,41 @@ export interface LogEntry {
 }
 
 /**
+ * 流式回复片段接口
+ */
+export interface StreamChunk {
+  id: string;
+  timestamp: number;
+  content: string;
+  requestId?: string;
+  isComplete?: boolean;
+}
+
+/**
+ * 流式会话接口
+ */
+export interface StreamSession {
+  id: string;
+  startTime: number;
+  endTime?: number;
+  chunks: StreamChunk[];
+  totalContent: string;
+  requestId?: string;
+  operation?: string;
+}
+
+/**
  * 日志状态接口
  */
 interface LogState {
   logs: LogEntry[];
   isVisible: boolean;
   maxLogs: number;
+  // 流式回复相关状态
+  streamSessions: StreamSession[];
+  currentStreamSession: StreamSession | null;
+  activeTab: 'logs' | 'stream';
+  maxStreamSessions: number;
 }
 
 /**
@@ -30,6 +59,13 @@ interface LogActions {
   toggleVisibility: () => void;
   setVisibility: (visible: boolean) => void;
   removeLogs: (count: number) => void;
+  // 流式回复相关操作
+  startStreamSession: (requestId?: string, operation?: string) => string;
+  addStreamChunk: (sessionId: string, content: string, requestId?: string) => void;
+  endStreamSession: (sessionId: string) => void;
+  clearStreamSessions: () => void;
+  setActiveTab: (tab: 'logs' | 'stream') => void;
+  removeStreamSessions: (count: number) => void;
 }
 
 /**
@@ -40,6 +76,11 @@ export const useLogStore = create<LogState & LogActions>((set) => ({
   logs: [],
   isVisible: false,
   maxLogs: 10000,
+  // 流式回复相关状态初始值
+  streamSessions: [],
+  currentStreamSession: null,
+  activeTab: 'logs',
+  maxStreamSessions: 50,
 
   /**
    * 添加日志条目
@@ -91,6 +132,125 @@ export const useLogStore = create<LogState & LogActions>((set) => ({
   removeLogs: (count) => {
     set((state) => ({
       logs: state.logs.slice(count)
+    }));
+  },
+
+  /**
+   * 开始新的流式会话
+   * @param requestId 请求ID
+   * @param operation 操作名称
+   * @returns 会话ID
+   */
+  startStreamSession: (requestId, operation) => {
+    const sessionId = `stream_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const newSession: StreamSession = {
+      id: sessionId,
+      startTime: Date.now(),
+      chunks: [],
+      totalContent: '',
+      requestId,
+      operation
+    };
+
+    set((state) => {
+      const newSessions = [...state.streamSessions, newSession];
+      // 保持会话数量在限制范围内
+      if (newSessions.length > state.maxStreamSessions) {
+        newSessions.splice(0, newSessions.length - state.maxStreamSessions);
+      }
+      return {
+        streamSessions: newSessions,
+        currentStreamSession: newSession
+      };
+    });
+
+    return sessionId;
+  },
+
+  /**
+   * 添加流式内容片段
+   * @param sessionId 会话ID
+   * @param content 内容片段
+   * @param requestId 请求ID
+   */
+  addStreamChunk: (sessionId, content, requestId) => {
+    const chunk: StreamChunk = {
+      id: `chunk_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      timestamp: Date.now(),
+      content,
+      requestId
+    };
+
+    set((state) => {
+      const updatedSessions = state.streamSessions.map(session => {
+        if (session.id === sessionId) {
+          const updatedSession = {
+            ...session,
+            chunks: [...session.chunks, chunk],
+            totalContent: session.totalContent + content
+          };
+          return updatedSession;
+        }
+        return session;
+      });
+
+      const currentSession = updatedSessions.find(s => s.id === sessionId) || null;
+
+      return {
+        streamSessions: updatedSessions,
+        currentStreamSession: currentSession
+      };
+    });
+  },
+
+  /**
+   * 结束流式会话
+   * @param sessionId 会话ID
+   */
+  endStreamSession: (sessionId) => {
+    set((state) => {
+      const updatedSessions = state.streamSessions.map(session => {
+        if (session.id === sessionId) {
+          return {
+            ...session,
+            endTime: Date.now()
+          };
+        }
+        return session;
+      });
+
+      return {
+        streamSessions: updatedSessions,
+        currentStreamSession: null
+      };
+    });
+  },
+
+  /**
+   * 清空所有流式会话
+   */
+  clearStreamSessions: () => {
+    set({ 
+      streamSessions: [],
+      currentStreamSession: null
+    });
+  },
+
+  /**
+   * 设置活动标签页
+   * @param tab 标签页类型
+   */
+  setActiveTab: (tab) => {
+    set({ activeTab: tab });
+  },
+
+  /**
+   * 移除指定数量的旧流式会话
+   * @param count 要移除的会话数量
+   */
+  removeStreamSessions: (count) => {
+    set((state) => ({
+      streamSessions: state.streamSessions.slice(count)
     }));
   }
 }));
@@ -145,5 +305,45 @@ export const logger = {
     success: (message: string, details?: unknown) => logger.success(message, 'api', details),
     warning: (message: string, details?: unknown) => logger.warning(message, 'api', details),
     error: (message: string, details?: unknown) => logger.error(message, 'api', details)
+  },
+
+  /**
+   * 流式回复相关操作
+   */
+  stream: {
+    /**
+     * 开始新的流式会话
+     * @param requestId 请求ID
+     * @param operation 操作名称
+     * @returns 会话ID
+     */
+    start: (requestId?: string, operation?: string) => {
+      return useLogStore.getState().startStreamSession(requestId, operation);
+    },
+
+    /**
+     * 添加流式内容片段
+     * @param sessionId 会话ID
+     * @param content 内容片段
+     * @param requestId 请求ID
+     */
+    chunk: (sessionId: string, content: string, requestId?: string) => {
+      useLogStore.getState().addStreamChunk(sessionId, content, requestId);
+    },
+
+    /**
+     * 结束流式会话
+     * @param sessionId 会话ID
+     */
+    end: (sessionId: string) => {
+      useLogStore.getState().endStreamSession(sessionId);
+    },
+
+    /**
+     * 清空所有流式会话
+     */
+    clear: () => {
+      useLogStore.getState().clearStreamSessions();
+    }
   }
 };
