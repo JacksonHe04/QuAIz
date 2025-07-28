@@ -5,6 +5,7 @@
 
 import type { LLMConfig, LLMResponse, LLMStreamResponse, LLMError } from './config';
 import { DEFAULT_LLM_CONFIG } from './config';
+import { logger } from '@/stores/useLogStore';
 
 /**
  * 消息接口定义
@@ -102,31 +103,68 @@ export class LLMClient {
    * 发送普通API请求（非流式）
    */
   async chat(request: LLMRequest): Promise<string> {
+    const requestId = Math.random().toString(36).substr(2, 9);
+    
+    logger.info(`开始发送API请求 [${requestId}]`, 'llm', {
+      model: request.model || this.config.model,
+      messageCount: request.messages.length,
+      maxTokens: request.max_tokens || this.config.maxTokens,
+      temperature: request.temperature ?? this.config.temperature
+    });
+
     if (!this.validateConfig()) {
-      throw new Error('LLM API配置不完整，请检查apiKey、baseUrl和model配置');
+      const error = 'LLM API配置不完整，请检查apiKey、baseUrl和model配置';
+      logger.error(`配置验证失败 [${requestId}]`, 'llm', { error });
+      throw new Error(error);
     }
 
     const requestBody = this.buildRequestBody({ ...request, stream: false });
     
     try {
+      logger.info(`发送HTTP请求 [${requestId}]`, 'api', {
+        url: `${this.config.baseUrl}/chat/completions`,
+        method: 'POST'
+      });
+
       const response = await fetch(`${this.config.baseUrl}/chat/completions`, {
         method: 'POST',
         headers: this.buildHeaders(),
         body: requestBody,
       });
 
+      logger.info(`收到HTTP响应 [${requestId}]`, 'api', {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok
+      });
+
       if (!response.ok) {
+        logger.error(`API请求失败 [${requestId}]`, 'api', {
+          status: response.status,
+          statusText: response.statusText
+        });
         await this.handleErrorResponse(response);
       }
 
       const data: LLMResponse = await response.json();
       
       if (!data.choices || data.choices.length === 0) {
-        throw new Error('API响应格式错误：缺少choices字段');
+        const error = 'API响应格式错误：缺少choices字段';
+        logger.error(`响应解析失败 [${requestId}]`, 'llm', { error, response: data });
+        throw new Error(error);
       }
 
-      return data.choices[0].message.content || '';
+      const content = data.choices[0].message.content || '';
+      logger.success(`API请求完成 [${requestId}]`, 'llm', {
+        responseLength: content.length
+      });
+
+      return content;
     } catch (error) {
+      logger.error(`API请求异常 [${requestId}]`, 'llm', {
+        error: error instanceof Error ? error.message : String(error)
+      });
+      
       if (error instanceof Error) {
         throw error;
       }
@@ -138,28 +176,59 @@ export class LLMClient {
    * 发送流式API请求
    */
   async *chatStream(request: LLMRequest): AsyncGenerator<string, void, unknown> {
+    const requestId = Math.random().toString(36).substr(2, 9);
+    let totalChunks = 0;
+    let totalLength = 0;
+    
+    logger.info(`开始发送流式API请求 [${requestId}]`, 'llm', {
+      model: request.model || this.config.model,
+      messageCount: request.messages.length,
+      maxTokens: request.max_tokens || this.config.maxTokens,
+      temperature: request.temperature ?? this.config.temperature
+    });
+
     if (!this.validateConfig()) {
-      throw new Error('LLM API配置不完整，请检查apiKey、baseUrl和model配置');
+      const error = 'LLM API配置不完整，请检查apiKey、baseUrl和model配置';
+      logger.error(`配置验证失败 [${requestId}]`, 'llm', { error });
+      throw new Error(error);
     }
 
     const requestBody = this.buildRequestBody({ ...request, stream: true });
     
     try {
+      logger.info(`发送流式HTTP请求 [${requestId}]`, 'api', {
+        url: `${this.config.baseUrl}/chat/completions`,
+        method: 'POST'
+      });
+
       const response = await fetch(`${this.config.baseUrl}/chat/completions`, {
         method: 'POST',
         headers: this.buildHeaders(),
         body: requestBody,
       });
 
+      logger.info(`收到流式HTTP响应 [${requestId}]`, 'api', {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok
+      });
+
       if (!response.ok) {
+        logger.error(`流式API请求失败 [${requestId}]`, 'api', {
+          status: response.status,
+          statusText: response.statusText
+        });
         await this.handleErrorResponse(response);
       }
 
       const reader = response.body?.getReader();
       if (!reader) {
-        throw new Error('无法获取响应流');
+        const error = '无法获取响应流';
+        logger.error(`流式响应初始化失败 [${requestId}]`, 'llm', { error });
+        throw new Error(error);
       }
 
+      logger.info(`开始接收流式数据 [${requestId}]`, 'llm');
       const decoder = new TextDecoder();
       let buffer = '';
 
@@ -167,7 +236,14 @@ export class LLMClient {
         while (true) {
           const { done, value } = await reader.read();
           
-          if (done) break;
+          if (done) {
+            logger.success(`流式请求完成 [${requestId}]`, 'llm', {
+              totalChunks,
+              totalLength,
+              avgChunkSize: totalChunks > 0 ? Math.round(totalLength / totalChunks) : 0
+            });
+            break;
+          }
           
           buffer += decoder.decode(value, { stream: true });
           const lines = buffer.split('\n');
@@ -178,16 +254,32 @@ export class LLMClient {
             if (!trimmedLine || !trimmedLine.startsWith('data: ')) continue;
             
             const dataStr = trimmedLine.slice(6);
-            if (dataStr === '[DONE]') return;
+            if (dataStr === '[DONE]') {
+              logger.info(`收到流式结束标记 [${requestId}]`, 'llm');
+              return;
+            }
             
             try {
               const data: LLMStreamResponse = JSON.parse(dataStr);
               const content = data.choices?.[0]?.delta?.content;
               if (content) {
+                totalChunks++;
+                totalLength += content.length;
+                
+                if (totalChunks % 10 === 0) {
+                  logger.info(`流式数据进度 [${requestId}]`, 'llm', {
+                    chunks: totalChunks,
+                    length: totalLength
+                  });
+                }
+                
                 yield content;
               }
             } catch (parseError) {
-              console.warn('解析流式响应失败:', parseError);
+              logger.warning(`解析流式响应失败 [${requestId}]`, 'llm', {
+                error: parseError instanceof Error ? parseError.message : String(parseError),
+                dataStr: dataStr.substring(0, 100)
+              });
               continue;
             }
           }
@@ -196,6 +288,12 @@ export class LLMClient {
         reader.releaseLock();
       }
     } catch (error) {
+      logger.error(`流式API请求异常 [${requestId}]`, 'llm', {
+        error: error instanceof Error ? error.message : String(error),
+        totalChunks,
+        totalLength
+      });
+      
       if (error instanceof Error) {
         throw error;
       }

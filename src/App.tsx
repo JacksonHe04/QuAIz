@@ -1,4 +1,5 @@
 import { AppRouter } from '@/router/AppRouter';
+import { LogPanelProvider } from '@/components/LogPanelProvider';
 
 /**
  * 主应用组件
@@ -6,9 +7,11 @@ import { AppRouter } from '@/router/AppRouter';
  */
 function App() {
   return (
-    <div className="App">
-      <AppRouter />
-    </div>
+    <LogPanelProvider>
+      <div className="App">
+        <AppRouter />
+      </div>
+    </LogPanelProvider>
   );
 }
 
