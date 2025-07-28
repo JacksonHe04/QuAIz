@@ -1,13 +1,7 @@
 import React from 'react';
 import { QuestionRenderer } from './QuestionRenderer';
 import type { Question } from '@/types';
-
-/**
- * 扩展的题目类型，支持部分渲染标记
- */
-type StreamingQuestion = Question & {
-  isPartial?: boolean;
-}
+import type { StreamingQuestion } from '@/stores/generation';
 
 /**
  * 流式题目渲染器属性

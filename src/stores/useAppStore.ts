@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { AppState } from '@/types';
-import { createGenerationActions, type GenerationActions } from './generationActions';
+import { createGenerationActions, type GenerationActions, type GenerationState } from './generationActions';
 import { createAnsweringActions, type AnsweringActions } from './answeringActions';
 import { createGradingActions, type GradingActions } from './gradingActions';
 
@@ -9,12 +9,15 @@ import { createGradingActions, type GradingActions } from './gradingActions';
  * 管理题目生成、答题和批改的全流程状态
  */
 interface AppStore extends GenerationActions, AnsweringActions, GradingActions {
-  generation: AppState['generation'];
+  generation: GenerationState;
   answering: AppState['answering'];
   grading: AppState['grading'];
   
   // 全局重置
   resetApp: () => void;
+  
+  // 索引签名以兼容类型系统
+  [key: string]: unknown;
 }
 
 
