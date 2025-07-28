@@ -150,6 +150,8 @@ export interface GenerationState {
   currentQuiz: Quiz | null;
   error: string | null;
   progress?: number; // 生成进度 0-100
+  streamingQuestions?: Question[]; // 流式生成的题目
+  completedQuestionCount?: number; // 已完成的题目数量
 }
 
 /** 答题状态 */

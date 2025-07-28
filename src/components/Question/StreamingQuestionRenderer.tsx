@@ -5,12 +5,8 @@ import type { Question } from '@/types';
 /**
  * 扩展的题目类型，支持部分渲染标记
  */
-interface StreamingQuestion {
-  id: string;
-  question?: string;
-  type?: Question['type'];
+type StreamingQuestion = Question & {
   isPartial?: boolean;
-  [key: string]: unknown;
 }
 
 /**
