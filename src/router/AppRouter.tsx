@@ -26,14 +26,9 @@ export const AppRouter: React.FC = () => {
       return <ResultPage />;
     }
     
-    // 如果试卷已生成，显示答题页面
-    if (generation.status === 'complete' && generation.currentQuiz) {
+    // 如果试卷已生成，显示答题页面（包括正在生成时也直接跳转）
+    if ((generation.status === 'complete' || generation.status === 'generating') && generation.currentQuiz) {
       return <QuizPage />;
-    }
-    
-    // 如果正在生成试卷，显示生成页面（会显示加载状态）
-    if (generation.status === 'generating') {
-      return <GenerationPage />;
     }
     
     // 默认显示生成页面

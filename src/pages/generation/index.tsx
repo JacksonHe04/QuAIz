@@ -3,17 +3,11 @@ import { useAppStore } from '@/stores/useAppStore';
 import { useGenerationForm, usePresetManager } from './hooks';
 import {
   GenerationForm,
-  LoadingState,
   PresetModal,
   SavePresetModal
 } from './components';
 
-/**
- * 检查生成状态是否为 'generating'
- */
-const isGeneratingStatus = (status: 'idle' | 'generating' | 'complete' | 'error'): boolean => {
-  return status === 'generating';
-};
+
 
 /**
  * 题目生成页面
@@ -72,10 +66,7 @@ export const GenerationPage: React.FC = () => {
     await startGeneration(formData);
   };
 
-  // 如果正在生成，显示加载状态
-  if (isGeneratingStatus(generation.status)) {
-    return <LoadingState />;
-  }
+  // 移除加载状态显示，让用户在生成过程中也能看到表单
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -98,7 +89,7 @@ export const GenerationPage: React.FC = () => {
             onSavePreset={handleSavePreset}
             onLoadPreset={() => setShowPresetModal(true)}
             onSubmit={handleSubmit}
-            isGenerating={isGeneratingStatus(generation.status)}
+            isGenerating={generation.status === 'generating'}
             error={generation.error}
           />
         </div>
