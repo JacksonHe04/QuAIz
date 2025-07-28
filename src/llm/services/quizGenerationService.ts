@@ -6,7 +6,7 @@
 import type { GenerationRequest, Quiz, Question } from '@/types';
 import { BaseLLMService, type ProgressCallback, type ValidationResult } from './baseService';
 import { generateQuizPrompt, validateQuizJSON } from '../prompt/quizGeneration';
-import { extractJSONFromStream } from '../utils/jsonUtils';
+import { extractJSONFromStream, extractCompleteQuestions, extractPartialText, getTotalQuestionCount } from '../utils/jsonUtils';
 import { logger } from '@/stores/useLogStore';
 import type { LLMClient } from '../api/client';
 
@@ -14,6 +14,20 @@ import type { LLMClient } from '../api/client';
  * 试卷生成进度回调类型
  */
 export type QuizProgressCallback = ProgressCallback<Quiz>;
+
+/**
+ * 逐题回调类型
+ */
+export type QuestionCallback = (question: Question & { isPartial?: boolean }, questionIndex: number, totalQuestions: number) => void;
+
+/**
+ * 增强的流式回调选项
+ */
+export interface StreamingOptions {
+  onProgress?: QuizProgressCallback;
+  onQuestionComplete?: QuestionCallback;
+  onQuestionPartial?: QuestionCallback;
+}
 
 /**
  * 试卷生成服务类
@@ -59,11 +73,26 @@ export class QuizGenerationService extends BaseLLMService {
   async generateQuizStream(
     request: GenerationRequest, 
     onProgress: QuizProgressCallback
+  ): Promise<Quiz>;
+  async generateQuizStream(
+    request: GenerationRequest, 
+    options: StreamingOptions
+  ): Promise<Quiz>;
+  async generateQuizStream(
+    request: GenerationRequest, 
+    optionsOrCallback: QuizProgressCallback | StreamingOptions
   ): Promise<Quiz> {
     const requestId = this.generateRequestId('quiz-stream');
     logger.llm.info(`开始流式生成试卷: ${request.subject}`, { requestId, request });
     
+    // 处理参数兼容性
+    const options: StreamingOptions = typeof optionsOrCallback === 'function' 
+      ? { onProgress: optionsOrCallback }
+      : optionsOrCallback;
+    
     const messages = generateQuizPrompt(request);
+    const totalQuestions = getTotalQuestionCount(request as unknown as Record<string, unknown>);
+    let processedQuestions = 0;
     
     const result = await this.executeStreamLLMRequest<Quiz>(
       messages,
@@ -80,8 +109,39 @@ export class QuizGenerationService extends BaseLLMService {
           };
         },
         validateJSON: (json: string) => this.validateQuizResponse(json),
-        parsePartial: (json: string) => this.parsePartialQuiz(json),
-        onProgress
+        parsePartial: (json: string) => {
+          const partialQuiz = this.parsePartialQuiz(json);
+          
+          // 处理逐题回调
+          if (partialQuiz && (options.onQuestionComplete || options.onQuestionPartial)) {
+            const questionResult = extractCompleteQuestions(json);
+            
+            // 处理新完成的题目
+            if (questionResult.completeQuestions.length > processedQuestions) {
+              for (let i = processedQuestions; i < questionResult.completeQuestions.length; i++) {
+                 const question = questionResult.completeQuestions[i] as unknown as Question;
+                 options.onQuestionComplete?.(question, i, totalQuestions);
+               }
+              processedQuestions = questionResult.completeQuestions.length;
+            }
+            
+            // 处理部分题目
+             if (questionResult.partialQuestion && options.onQuestionPartial) {
+               const partialText = extractPartialText(JSON.stringify(questionResult.partialQuestion));
+               if (partialText) {
+                 const partialQuestion = {
+                   id: `partial-${processedQuestions}`,
+                   question: partialText,
+                   isPartial: true
+                 } as Question & { isPartial: boolean };
+                 options.onQuestionPartial(partialQuestion, processedQuestions, totalQuestions);
+               }
+             }
+          }
+          
+          return partialQuiz;
+        },
+        onProgress: options.onProgress || (() => {})
       }
     );
     

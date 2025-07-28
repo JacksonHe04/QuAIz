@@ -1,6 +1,7 @@
 import React from 'react';
 import { useAppStore } from '@/stores/useAppStore';
 import { GenerationPage, QuizPage, ResultPage } from '@/pages';
+import { StreamingQuizPage } from '@/pages/quiz/streaming';
 
 /**
  * 应用路由组件
@@ -26,8 +27,13 @@ export const AppRouter: React.FC = () => {
       return <ResultPage />;
     }
     
-    // 如果试卷已生成，显示答题页面（包括正在生成时也直接跳转）
-    if ((generation.status === 'complete' || generation.status === 'generating') && generation.currentQuiz) {
+    // 如果正在流式生成且有流式题目，显示流式页面
+    if (generation.status === 'generating' && generation.streamingQuestions && generation.streamingQuestions.length > 0) {
+      return <StreamingQuizPage />;
+    }
+    
+    // 如果试卷已生成，显示答题页面
+    if (generation.status === 'complete' && generation.currentQuiz) {
       return <QuizPage />;
     }
     

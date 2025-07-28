@@ -12,28 +12,60 @@ import {
   quizGradingService, 
   checkLLMConfig
 } from '@/llm';
+import type { StreamingOptions } from '@/llm/services/quizGenerationService';
 
 /**
  * 应用主状态管理store
  * 管理题目生成、答题和批改的全流程状态
  */
-interface AppStore extends AppState {
-  // 生成相关actions
+/**
+ * 流式题目状态
+ */
+interface StreamingQuestion {
+  id: string;
+  question?: string;
+  type?: Question['type'];
+  isPartial?: boolean;
+  [key: string]: unknown;
+}
+
+/**
+ * 扩展的生成状态，支持流式渲染
+ */
+interface ExtendedGenerationState {
+  status: 'idle' | 'generating' | 'complete' | 'error';
+  currentQuiz: Quiz | null;
+  error: string | null;
+  progress?: number;
+  streamingQuestions: StreamingQuestion[];
+  completedQuestionCount: number;
+}
+
+interface AppStore {
+  generation: ExtendedGenerationState;
+  answering: AppState['answering'];
+  grading: AppState['grading'];
+  
+  // 生成相关
   startGeneration: (request: GenerationRequest) => Promise<void>;
   setGenerationError: (error: string) => void;
   resetGeneration: () => void;
   
-  // 答题相关actions
+  // 流式渲染相关
+  addStreamingQuestion: (question: StreamingQuestion) => void;
+  updateStreamingQuestion: (index: number, question: StreamingQuestion) => void;
+  
+  // 答题相关
   updateUserAnswer: (questionId: string, answer: unknown) => void;
   setCurrentQuestion: (index: number) => void;
   submitQuiz: () => Promise<void>;
   
-  // 批改相关actions
+  // 批改相关
   startGrading: () => Promise<void>;
   setGradingError: (error: string) => void;
   resetGrading: () => void;
   
-  // 重置整个应用状态
+  // 全局重置
   resetApp: () => void;
 }
 
@@ -197,8 +229,10 @@ export const useAppStore = create<AppStore>((set, get) => ({
   generation: {
     status: 'idle' as const,
     currentQuiz: null,
-    error: null
-  } as AppState['generation'],
+    error: null,
+    streamingQuestions: [],
+    completedQuestionCount: 0
+  } as ExtendedGenerationState,
   answering: {
     currentQuestionIndex: 0,
     isSubmitted: false
@@ -213,7 +247,13 @@ export const useAppStore = create<AppStore>((set, get) => ({
   startGeneration: async (request: GenerationRequest) => {
     set((state) => ({
       ...state,
-      generation: { ...state.generation, status: 'generating', error: null }
+      generation: { 
+        ...state.generation, 
+        status: 'generating', 
+        error: null,
+        streamingQuestions: [],
+        completedQuestionCount: 0
+      }
     }));
     
     try {
@@ -221,26 +261,60 @@ export const useAppStore = create<AppStore>((set, get) => ({
       const hasLLMConfig = checkLLMConfig();
       
       if (hasLLMConfig) {
-        // 使用真实LLM API生成试卷
-        const streamCallback = (partialQuiz: Quiz | undefined, progress: number) => {
-          set(state => ({
-            ...state,
-            generation: {
-              ...state.generation,
-              currentQuiz: partialQuiz || state.generation.currentQuiz,
-              progress
-            }
-          }));
+        // 使用真实LLM API生成试卷，支持流式渲染
+        const streamingOptions: StreamingOptions = {
+          onProgress: (partialQuiz: Quiz | undefined, progress: number) => {
+            set(state => ({
+              ...state,
+              generation: {
+                ...state.generation,
+                currentQuiz: partialQuiz || state.generation.currentQuiz,
+                progress
+              }
+            }));
+          },
+          onQuestionComplete: (question: Question, questionIndex: number) => {
+            set(state => {
+              const newStreamingQuestions = [...state.generation.streamingQuestions];
+              newStreamingQuestions[questionIndex] = { ...question, isPartial: false };
+              
+              return {
+                ...state,
+                generation: {
+                  ...state.generation,
+                  streamingQuestions: newStreamingQuestions,
+                  completedQuestionCount: questionIndex + 1
+                }
+              };
+            });
+          },
+          onQuestionPartial: (partialQuestion: Question & { isPartial?: boolean }, questionIndex: number) => {
+            set(state => {
+              const newStreamingQuestions = [...state.generation.streamingQuestions];
+              newStreamingQuestions[questionIndex] = { ...partialQuestion, isPartial: true };
+              
+              return {
+                ...state,
+                generation: {
+                  ...state.generation,
+                  streamingQuestions: newStreamingQuestions
+                }
+              };
+            });
+          }
         };
         
-        const quiz = await quizGenerationService.generateQuizStream(request, streamCallback);
+        const quiz = await quizGenerationService.generateQuizStream(request, streamingOptions);
         
         set((state) => ({
           ...state,
           generation: {
             status: 'complete',
             currentQuiz: quiz,
-            error: null
+            error: null,
+            progress: 100,
+            streamingQuestions: quiz.questions.map((q: Question) => ({ ...q, isPartial: false })),
+            completedQuestionCount: quiz.questions.length
           },
           answering: {
             currentQuestionIndex: 0,
@@ -256,7 +330,10 @@ export const useAppStore = create<AppStore>((set, get) => ({
           generation: {
             status: 'complete',
             currentQuiz: quiz,
-            error: null
+            error: null,
+            progress: 100,
+            streamingQuestions: quiz.questions.map((q: Question) => ({ ...q, isPartial: false })),
+            completedQuestionCount: quiz.questions.length
           },
           answering: {
             currentQuestionIndex: 0,
@@ -285,14 +362,43 @@ export const useAppStore = create<AppStore>((set, get) => ({
   },
   
   resetGeneration: () => {
-      set((state) => ({
+    set((state) => ({
+       ...state,
+       generation: {
+         status: 'idle',
+         currentQuiz: null,
+         error: null,
+         progress: undefined,
+         streamingQuestions: [],
+         completedQuestionCount: 0
+       }
+     }));
+  },
+  
+  // 流式渲染相关方法
+  addStreamingQuestion: (question: StreamingQuestion) => {
+    set((state) => ({
+      ...state,
+      generation: {
+        ...state.generation,
+        streamingQuestions: [...state.generation.streamingQuestions, question]
+      }
+    }));
+  },
+  
+  updateStreamingQuestion: (index: number, question: StreamingQuestion) => {
+    set((state) => {
+      const newStreamingQuestions = [...state.generation.streamingQuestions];
+      newStreamingQuestions[index] = question;
+      
+      return {
         ...state,
         generation: {
-          status: 'idle',
-          currentQuiz: null,
-          error: null
+          ...state.generation,
+          streamingQuestions: newStreamingQuestions
         }
-      }));
+      };
+    });
   },
   
   // 答题相关actions
@@ -418,7 +524,10 @@ export const useAppStore = create<AppStore>((set, get) => ({
       generation: {
         status: 'idle',
         currentQuiz: null,
-        error: null
+        error: null,
+        progress: undefined,
+        streamingQuestions: [],
+        completedQuestionCount: 0
       },
       answering: {
         currentQuestionIndex: 0,
