@@ -12,11 +12,21 @@ export * from './prompt/quizGeneration';
 export * from './prompt/quizGrading';
 
 // 服务相关
-export * from './services/quizService';
+export * from './services/baseService';
+export * from './services/quizGenerationService';
+export * from './services/quizGradingService';
+export * from './services/serviceFactory';
+export * from './services/quizService'; // 保持向后兼容
 
 // 便捷导出
 export { defaultLLMClient, createLLMClient } from './api/client';
-export { quizGenerationService, quizGradingService, createQuizServices } from './services/quizService';
+export { 
+  quizGenerationService, 
+  quizGradingService, 
+  createQuizServices,
+  getDefaultServices,
+  updateDefaultLLMClient 
+} from './services/serviceFactory';
 
 /**
  * LLM模块配置检查
