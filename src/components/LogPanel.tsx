@@ -145,7 +145,7 @@ export const LogPanel: React.FC = () => {
           h-full bg-white shadow-2xl border-r border-gray-200
           w-96 transform transition-all duration-300 ease-in-out
           ${isVisible ? 'translate-x-0' : '-translate-x-full'}
-          flex flex-col overflow-hidden
+          flex flex-col overflow-hidden z-40
         `}>
         {/* 头部 */}
         <div className="bg-gray-900 text-white p-4 flex items-center justify-between">
@@ -216,7 +216,7 @@ export const LogPanel: React.FC = () => {
 
       {/* 浮动切换按钮 - 当面板关闭时显示 */}
       {!isVisible && (
-        <div className="absolute top-4 left-4 z-10">
+        <div className="fixed top-4 left-4 z-50">
           <button
             id="log-panel-toggle"
             onClick={toggleVisibility}
