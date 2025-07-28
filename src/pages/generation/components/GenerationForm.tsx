@@ -139,7 +139,7 @@ export const GenerationForm: React.FC<GenerationFormProps> = ({
                 logger.error('流式测试失败', 'system', { error: error instanceof Error ? error.message : '未知错误' });
             }
           }}
-          className="px-6 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors"
+          className="hidden px-6 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors"
         >
           测试流式回复
         </button>

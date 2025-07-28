@@ -1,5 +1,5 @@
 import React from 'react';
-import { LogPanel } from './LogPanel';
+import { LogPanel } from '@/components/LogPanel';
 import { useLogStore } from '@/stores/useLogStore';
 
 /**

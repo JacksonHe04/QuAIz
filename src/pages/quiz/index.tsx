@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { useAppStore } from '@/stores/useAppStore';
-import { QuestionRenderer } from '@/componets/QuestionRenderer';
+import { QuestionRenderer } from '@/components/questions/QuestionRenderer';
 import {
   QuizHeader,
   QuizNavigation,

@@ -231,5 +231,3 @@ export function validateGradingJSON(jsonStr: string): { isValid: boolean; error?
     };
   }
 }
-
-// JSON提取功能已移至 utils/jsonUtils.ts

@@ -1,6 +1,6 @@
 import React from 'react';
 import type { Question } from '@/types';
-import { QuestionRenderer } from '@/componets/QuestionRenderer';
+import { QuestionRenderer } from '@/components/questions/QuestionRenderer';
 
 interface Props {
   question: Question;

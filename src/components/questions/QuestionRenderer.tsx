@@ -8,7 +8,7 @@ import {
   ShortAnswerQuestion,
   CodeOutputQuestion,
   CodeWritingQuestion
-} from './questions';
+} from '.';
 
 interface Props {
   question: Question;
