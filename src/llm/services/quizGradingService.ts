@@ -6,7 +6,7 @@
 import type { Quiz, GradingResult } from '@/types';
 import { BaseLLMService, type ProgressCallback, type ValidationResult } from './baseService';
 import { generateGradingPrompt, validateGradingJSON } from '../prompt/quizGrading';
-import { extractJSONFromStream } from '../utils/jsonUtils';
+import { extractJSONFromStream, safeParseJSON } from '../utils/jsonUtils';
 import { logger } from '@/stores/useLogStore';
 import type { LLMClient } from '../api/client';
 
@@ -102,24 +102,21 @@ export class QuizGradingService extends BaseLLMService {
    * 解析部分批改结果JSON以提供实时预览
    */
   private parsePartialGradingResult(jsonStr: string): GradingResult | undefined {
-    try {
-      // 使用基类的JSON修复工具
-      const fixedJson = this.fixIncompleteJSON(jsonStr, 'results');
-      const parsed = JSON.parse(fixedJson);
-      
-      // 基础验证
-      if (typeof parsed.totalScore === 'number' && 
-          typeof parsed.maxScore === 'number' && 
-          Array.isArray(parsed.results)) {
-        return {
-          totalScore: parsed.totalScore,
-          maxScore: parsed.maxScore,
-          results: parsed.results,
-          overallFeedback: parsed.overallFeedback || '正在生成总体评价...'
-        };
-      }
-    } catch {
-      // 解析失败，返回undefined
+    // 使用基类的JSON修复工具
+    const fixedJson = this.fixIncompleteJSON(jsonStr, 'results');
+    const parsed = safeParseJSON<Record<string, unknown>>(fixedJson);
+    
+    // 基础验证
+    if (parsed && 
+        typeof parsed.totalScore === 'number' && 
+        typeof parsed.maxScore === 'number' && 
+        Array.isArray(parsed.results)) {
+      return {
+        totalScore: parsed.totalScore as number,
+        maxScore: parsed.maxScore as number,
+        results: parsed.results as Array<{ questionId: string; score: number; feedback: string }>,
+        overallFeedback: (typeof parsed.overallFeedback === 'string' ? parsed.overallFeedback : '正在生成总体评价...')
+      };
     }
     
     return undefined;

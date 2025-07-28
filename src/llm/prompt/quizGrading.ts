@@ -4,6 +4,7 @@
  */
 
 import type { Quiz, Question, GradingResult } from '@/types';
+import { safeParseJSON } from '../utils/jsonUtils';
 
 /**
  * 题型批改说明
@@ -176,8 +177,16 @@ export function generateGradingPrompt(quiz: Quiz) {
  * 验证批改结果JSON格式
  */
 export function validateGradingJSON(jsonStr: string): { isValid: boolean; error?: string; result?: GradingResult } {
+  const result = safeParseJSON<Record<string, unknown>>(jsonStr);
+  
+  if (!result) {
+    return {
+      isValid: false,
+      error: 'JSON解析失败：无效的JSON格式或包含markdown代码块标记'
+    };
+  }
+  
   try {
-    const result = JSON.parse(jsonStr);
     
     // 基础字段验证
     if (typeof result.totalScore !== 'number' || 
@@ -222,7 +231,7 @@ export function validateGradingJSON(jsonStr: string): { isValid: boolean; error?
     
     return {
       isValid: true,
-      result: result as GradingResult
+      result: result as unknown as GradingResult
     };
   } catch (error) {
     return {

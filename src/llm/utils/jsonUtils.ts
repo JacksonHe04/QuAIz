@@ -13,18 +13,44 @@ export interface JSONExtractionResult {
 
 /**
  * 从流式输出中提取 JSON
- * @param content 流式内容
+ * @param content 流式内容（可能包含markdown代码块标记）
  * @returns JSON 提取结果
  */
 export function extractJSONFromStream(content: string): JSONExtractionResult {
+  // 预处理：移除可能的markdown代码块标记
+  let processedContent = content;
+  
+  // 检查是否包含```json标记
+  const jsonBlockStart = processedContent.indexOf('```json');
+  if (jsonBlockStart !== -1) {
+    // 找到```json后的内容
+    processedContent = processedContent.slice(jsonBlockStart + 7);
+    
+    // 查找结束的```标记
+    const blockEnd = processedContent.indexOf('```');
+    if (blockEnd !== -1) {
+      processedContent = processedContent.slice(0, blockEnd);
+    }
+  } else {
+    // 检查是否有普通的```标记
+    const blockStart = processedContent.indexOf('```');
+    if (blockStart !== -1) {
+      processedContent = processedContent.slice(blockStart + 3);
+      const blockEnd = processedContent.indexOf('```');
+      if (blockEnd !== -1) {
+        processedContent = processedContent.slice(0, blockEnd);
+      }
+    }
+  }
+  
   // 寻找JSON开始标记
-  const jsonStart = content.indexOf('{');
+  const jsonStart = processedContent.indexOf('{');
   if (jsonStart === -1) {
     return { json: null, isComplete: false };
   }
   
   // 从JSON开始位置截取内容
-  const jsonContent = content.slice(jsonStart);
+  const jsonContent = processedContent.slice(jsonStart);
   
   // 尝试找到完整的JSON结构
   let braceCount = 0;
@@ -98,13 +124,37 @@ export function fixIncompleteJSON(jsonStr: string, arrayField?: string): string 
 }
 
 /**
+ * 清理大模型返回的JSON字符串，移除markdown代码块标记
+ * @param content 可能包含markdown代码块的内容
+ * @returns 清理后的JSON字符串
+ */
+export function cleanLLMResponse(content: string): string {
+  let cleanedContent = content.trim();
+  
+  // 移除```json开头和```结尾
+  if (cleanedContent.startsWith('```json')) {
+    cleanedContent = cleanedContent.slice(7);
+  } else if (cleanedContent.startsWith('```')) {
+    cleanedContent = cleanedContent.slice(3);
+  }
+  
+  if (cleanedContent.endsWith('```')) {
+    cleanedContent = cleanedContent.slice(0, -3);
+  }
+  
+  return cleanedContent.trim();
+}
+
+/**
  * 安全解析 JSON 字符串
- * @param jsonStr JSON 字符串
+ * @param jsonStr JSON 字符串（可能被```json和```包装）
  * @returns 解析结果，失败时返回 null
  */
 export function safeParseJSON<T = unknown>(jsonStr: string): T | null {
   try {
-    return JSON.parse(jsonStr) as T;
+    // 使用cleanLLMResponse函数清理内容
+    const cleanedJson = cleanLLMResponse(jsonStr);
+    return JSON.parse(cleanedJson) as T;
   } catch {
     return null;
   }

@@ -6,7 +6,7 @@
 import type { GenerationRequest, Quiz, Question } from '@/types';
 import { BaseLLMService, type ProgressCallback, type ValidationResult } from './baseService';
 import { generateQuizPrompt, validateQuizJSON } from '../prompt/quizGeneration';
-import { extractJSONFromStream, extractCompleteQuestions, extractPartialText, getTotalQuestionCount } from '../utils/jsonUtils';
+import { extractJSONFromStream, extractCompleteQuestions, extractPartialText, getTotalQuestionCount, safeParseJSON } from '../utils/jsonUtils';
 import { logger } from '@/stores/useLogStore';
 import type { LLMClient } from '../api/client';
 
@@ -177,10 +177,15 @@ export class QuizGenerationService extends BaseLLMService {
    * 解析部分JSON以提供实时预览
    */
   private parsePartialQuiz(jsonStr: string): Quiz | undefined {
+    // 使用基类的JSON修复工具
+    const fixedJson = this.fixIncompleteJSON(jsonStr, 'questions');
+    const parsed = safeParseJSON<Record<string, unknown>>(fixedJson);
+    
+    if (!parsed) {
+      return undefined;
+    }
+    
     try {
-      // 使用基类的JSON修复工具
-      const fixedJson = this.fixIncompleteJSON(jsonStr, 'questions');
-      const parsed = JSON.parse(fixedJson);
       
       // 基础验证
       if (!parsed.title || !Array.isArray(parsed.questions)) {
@@ -194,10 +199,10 @@ export class QuizGenerationService extends BaseLLMService {
       }));
       
       return {
-        id: parsed.id || this.generateRequestId('quiz'),
-        title: parsed.title,
+        id: (parsed.id as string) || this.generateRequestId('quiz'),
+        title: parsed.title as string,
         questions: questionsWithAnswers,
-        createdAt: parsed.createdAt || Date.now()
+        createdAt: (parsed.createdAt as number) || Date.now()
       };
     } catch {
       return undefined;

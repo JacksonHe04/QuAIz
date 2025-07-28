@@ -4,6 +4,7 @@
  */
 
 import type { GenerationRequest, Quiz } from '@/types';
+import { safeParseJSON } from '../utils/jsonUtils';
 
 /**
  * 题型说明映射
@@ -159,8 +160,16 @@ export function generateQuizPrompt(request: GenerationRequest) {
  * 验证生成的试卷JSON格式
  */
 export function validateQuizJSON(jsonStr: string): { isValid: boolean; error?: string; quiz?: Quiz } {
+  const quiz = safeParseJSON<Record<string, unknown>>(jsonStr);
+  
+  if (!quiz) {
+    return {
+      isValid: false,
+      error: 'JSON解析失败'
+    };
+  }
+  
   try {
-    const quiz = JSON.parse(jsonStr);
     
     // 基础字段验证
     if (!quiz.id || !quiz.title || !Array.isArray(quiz.questions)) {
@@ -235,7 +244,7 @@ export function validateQuizJSON(jsonStr: string): { isValid: boolean; error?: s
     
     return {
       isValid: true,
-      quiz
+      quiz: quiz as unknown as Quiz
     };
   } catch (error) {
     return {
