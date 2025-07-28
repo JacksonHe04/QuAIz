@@ -1,10 +1,9 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { useAppStore } from '@/stores/useAppStore';
 import { QuestionRenderer } from '@/componets/QuestionRenderer';
 import {
   QuizHeader,
   QuizNavigation,
-  QuizControls,
   EmptyQuizState
 } from './components';
 import {
@@ -25,10 +24,11 @@ export const QuizPage: React.FC = () => {
   // 题目导航
   const {
     currentQuestionIndex,
-    goToPrevQuestion,
-    goToNextQuestion,
     goToQuestion
   } = useQuizNavigation();
+
+  // 题目引用数组，用于滚动定位
+  const questionRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   // 答题提交
   const {
@@ -40,12 +40,36 @@ export const QuizPage: React.FC = () => {
   // 答题状态
   const {
     answeredCount,
-    totalQuestions,
     isQuestionAnswered
-  } = useQuizStatus(quiz, currentQuestionIndex);
+  } = useQuizStatus(quiz);
 
-  // 当前题目
-  const currentQuestion = quiz?.questions[currentQuestionIndex];
+  /**
+   * 滚动到指定题目
+   * @param index 题目索引
+   */
+  const scrollToQuestion = (index: number) => {
+    const questionElement = questionRefs.current[index];
+    if (questionElement) {
+      questionElement.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+  };
+
+  /**
+   * 处理题目选择，包含滚动定位
+   * @param index 题目索引
+   */
+  const handleQuestionSelect = (index: number) => {
+    goToQuestion(index);
+    scrollToQuestion(index);
+  };
+
+  // 当currentQuestionIndex变化时，自动滚动到对应题目
+  useEffect(() => {
+    scrollToQuestion(currentQuestionIndex);
+  }, [currentQuestionIndex]);
 
   // 如果没有试卷，显示空状态
   if (!quiz) {
@@ -62,38 +86,62 @@ export const QuizPage: React.FC = () => {
         onReset={resetApp}
       />
 
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* 题目导航 */}
-          <div className="lg:col-span-1">
+      <div className="max-w-6xl mx-auto px-4 py-8 pt-32">
+        <div className="lg:ml-80">
+          {/* 固定的题目导航 - 桌面端 */}
+          <div className="fixed top-32 left-44 w-64 h-[calc(100vh-8rem)] z-20 hidden lg:block">
+            <div className="bg-white rounded-lg shadow-lg p-4 overflow-y-auto">
+              <QuizNavigation
+                quiz={quiz}
+                currentQuestionIndex={currentQuestionIndex}
+                onQuestionSelect={handleQuestionSelect}
+                isQuestionAnswered={isQuestionAnswered}
+              />
+            </div>
+          </div>
+          {/* 移动端题目导航 */}
+          <div className="lg:hidden mb-6">
             <QuizNavigation
               quiz={quiz}
               currentQuestionIndex={currentQuestionIndex}
-              onQuestionSelect={goToQuestion}
+              onQuestionSelect={handleQuestionSelect}
               isQuestionAnswered={isQuestionAnswered}
+              showBackground={true}
             />
           </div>
 
-          {/* 题目内容 */}
-          <div className="lg:col-span-3">
-            {currentQuestion && (
-              <QuestionRenderer
-                question={currentQuestion}
-                onAnswerChange={handleAnswerChange}
-                disabled={isSubmitted}
-                questionNumber={currentQuestionIndex + 1}
-              />
-            )}
+          {/* 所有题目内容 */}
+          <div className="space-y-8">
+            {quiz.questions.map((question, index) => (
+              <div
+                key={question.id}
+                ref={(el) => { questionRefs.current[index] = el; }}
+                className={`transition-all duration-300 ${
+                  index === currentQuestionIndex 
+                    ? 'ring-2 ring-blue-500 ring-opacity-50' 
+                    : ''
+                }`}
+                style={{ scrollMarginTop: '140px' }}
+              >
+                <QuestionRenderer
+                  question={question}
+                  onAnswerChange={handleAnswerChange}
+                  disabled={isSubmitted}
+                  questionNumber={index + 1}
+                />
+              </div>
+            ))}
 
-            {/* 导航按钮 */}
-            <QuizControls
-              currentQuestionIndex={currentQuestionIndex}
-              totalQuestions={totalQuestions}
-              isSubmitted={isSubmitted}
-              onPrevQuestion={goToPrevQuestion}
-              onNextQuestion={() => goToNextQuestion(totalQuestions)}
-              onSubmitQuiz={() => handleSubmitQuiz(quiz)}
-            />
+            {/* 提交按钮 */}
+            <div className="mt-8 flex justify-center">
+              <button
+                onClick={() => handleSubmitQuiz(quiz)}
+                disabled={isSubmitted}
+                className="px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-lg font-medium"
+              >
+                {isSubmitted ? '已提交' : '提交试卷'}
+              </button>
+            </div>
           </div>
         </div>
       </div>

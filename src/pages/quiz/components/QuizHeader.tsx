@@ -19,7 +19,7 @@ export const QuizHeader: React.FC<Props> = ({
   onReset
 }) => {
   return (
-    <div className="bg-white shadow-sm border-b">
+    <div className="bg-white shadow-sm border-b fixed top-0 left-0 right-0 z-30">
       <div className="max-w-6xl mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <div>

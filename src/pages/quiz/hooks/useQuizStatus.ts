@@ -5,15 +5,7 @@ import type { Quiz } from '@/types';
  * 答题状态钩子
  * 处理答题进度、已答题数量等状态
  */
-export function useQuizStatus(quiz: Quiz | null, currentQuestionIndex: number) {
-  /**
-   * 计算当前进度百分比
-   */
-  const progress = useMemo(() => {
-    if (!quiz) return 0;
-    return ((currentQuestionIndex + 1) / quiz.questions.length) * 100;
-  }, [quiz, currentQuestionIndex]);
-
+export function useQuizStatus(quiz: Quiz | null) {
   /**
    * 计算已答题数量
    */
@@ -64,9 +56,7 @@ export function useQuizStatus(quiz: Quiz | null, currentQuestionIndex: number) {
   };
 
   return {
-    progress,
     answeredCount,
-    totalQuestions: quiz?.questions.length || 0,
     isQuestionAnswered
   };
 }

@@ -6,6 +6,7 @@ interface Props {
   currentQuestionIndex: number;
   onQuestionSelect: (index: number) => void;
   isQuestionAnswered: (index: number) => boolean;
+  showBackground?: boolean;
 }
 
 /**
@@ -16,10 +17,11 @@ export const QuizNavigation: React.FC<Props> = ({
   quiz,
   currentQuestionIndex,
   onQuestionSelect,
-  isQuestionAnswered
+  isQuestionAnswered,
+  showBackground = false
 }) => {
   return (
-    <div className="bg-white rounded-lg shadow-sm p-4 sticky top-4">
+    <div className={showBackground ? 'bg-white rounded-lg shadow-sm p-4' : ''}>
       <h3 className="font-medium text-gray-900 mb-3">题目导航</h3>
       <div className="grid grid-cols-5 lg:grid-cols-4 gap-2">
         {quiz.questions.map((question, index) => {
