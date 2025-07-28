@@ -245,42 +245,4 @@ export function validateQuizJSON(jsonStr: string): { isValid: boolean; error?: s
   }
 }
 
-/**
- * 从流式输出中提取JSON
- */
-export function extractJSONFromStream(content: string): { json?: string; isComplete: boolean } {
-  // 寻找JSON开始标记
-  const jsonStart = content.indexOf('{');
-  if (jsonStart === -1) {
-    return { isComplete: false };
-  }
-  
-  // 从JSON开始位置截取内容
-  const jsonContent = content.slice(jsonStart);
-  
-  // 尝试找到完整的JSON结构
-  let braceCount = 0;
-  let jsonEnd = -1;
-  
-  for (let i = 0; i < jsonContent.length; i++) {
-    const char = jsonContent[i];
-    if (char === '{') {
-      braceCount++;
-    } else if (char === '}') {
-      braceCount--;
-      if (braceCount === 0) {
-        jsonEnd = i;
-        break;
-      }
-    }
-  }
-  
-  if (jsonEnd === -1) {
-    // JSON还未完整
-    return { json: jsonContent, isComplete: false };
-  }
-  
-  // 提取完整的JSON
-  const completeJSON = jsonContent.slice(0, jsonEnd + 1);
-  return { json: completeJSON, isComplete: true };
-}
+// JSON提取功能已移至 utils/jsonUtils.ts

@@ -114,7 +114,7 @@ const LogEntryComponent: React.FC<{ log: LogEntry }> = ({ log }) => {
  * 从左侧弹出的侧边栏，显示实时日志信息
  */
 export const LogPanel: React.FC = () => {
-  const { logs, isVisible, toggleVisibility, setVisibility, clearLogs } = useLogStore();
+  const { logs, isVisible, toggleVisibility, clearLogs } = useLogStore();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [isAutoScroll, setIsAutoScroll] = React.useState(true);
 
@@ -125,31 +125,7 @@ export const LogPanel: React.FC = () => {
     }
   }, [logs, isAutoScroll]);
 
-  // 点击外部关闭面板
-  useEffect(() => {
-    if (!isVisible) return;
-    
-    const handleClickOutside = (event: MouseEvent) => {
-      // 获取侧边栏面板元素
-      const panel = document.getElementById('log-panel-sidebar');
-      // 获取切换按钮元素
-      const toggleButton = document.getElementById('log-panel-toggle');
-      
-      // 如果点击的不是面板内部元素，也不是切换按钮，则关闭面板
-      if (panel && !panel.contains(event.target as Node) && 
-          toggleButton && !toggleButton.contains(event.target as Node)) {
-        setVisibility(false);
-      }
-    };
-    
-    // 添加点击事件监听
-    document.addEventListener('mousedown', handleClickOutside);
-    
-    // 清理函数
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isVisible, setVisibility]);
+  // 移除点击外部关闭逻辑，因为现在使用挤压布局而不是覆盖层
 
   // 检测用户是否手动滚动
   const handleScroll = () => {
@@ -162,16 +138,14 @@ export const LogPanel: React.FC = () => {
 
   return (
     <>
-      {/* 不再使用全屏背景遮罩，改为在侧边栏面板上处理点击外部关闭的逻辑 */}
-      
-      {/* 侧边栏面板 */}
+      {/* 侧边栏面板 - 使用相对定位实现挤压效果 */}
       <div 
         id="log-panel-sidebar"
         className={`
-          fixed top-0 left-0 h-full w-96 bg-white shadow-2xl z-50
-          transform transition-transform duration-300 ease-in-out
+          h-full bg-white shadow-2xl border-r border-gray-200
+          w-96 transform transition-all duration-300 ease-in-out
           ${isVisible ? 'translate-x-0' : '-translate-x-full'}
-          flex flex-col
+          flex flex-col overflow-hidden
         `}>
         {/* 头部 */}
         <div className="bg-gray-900 text-white p-4 flex items-center justify-between">
@@ -240,16 +214,18 @@ export const LogPanel: React.FC = () => {
         </div>
       </div>
 
-      {/* 浮动切换按钮 */}
+      {/* 浮动切换按钮 - 当面板关闭时显示 */}
       {!isVisible && (
-        <button
-          id="log-panel-toggle"
-          onClick={toggleVisibility}
-          className="fixed top-4 left-4 z-30 bg-gray-900 text-white p-3 rounded-full shadow-lg hover:bg-gray-700 transition-all duration-200 hover:scale-110"
-          title="打开日志面板"
-        >
-          📊
-        </button>
+        <div className="absolute top-4 left-4 z-10">
+          <button
+            id="log-panel-toggle"
+            onClick={toggleVisibility}
+            className="bg-gray-900 text-white p-3 rounded-full shadow-lg hover:bg-gray-700 transition-all duration-200 hover:scale-110"
+            title="打开日志面板"
+          >
+            📊
+          </button>
+        </div>
       )}
     </>
   );

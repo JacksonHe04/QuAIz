@@ -5,7 +5,8 @@
 
 import type { GenerationRequest, Quiz, Question } from '@/types';
 import { BaseLLMService, type ProgressCallback, type ValidationResult } from './baseService';
-import { generateQuizPrompt, validateQuizJSON, extractJSONFromStream } from '../prompt/quizGeneration';
+import { generateQuizPrompt, validateQuizJSON } from '../prompt/quizGeneration';
+import { extractJSONFromStream } from '../utils/jsonUtils';
 import { logger } from '@/stores/useLogStore';
 import type { LLMClient } from '../api/client';
 
@@ -46,7 +47,9 @@ export class QuizGenerationService extends BaseLLMService {
       
       return quiz;
     } catch (error) {
-      this.handleLLMError(error, requestId, '试卷生成');
+      const errorMessage = error instanceof Error ? error.message : '未知错误';
+      logger.llm.error('试卷生成失败', { requestId, error: errorMessage });
+      throw new Error(`试卷生成失败: ${errorMessage}`);
     }
   }
 
@@ -120,19 +123,25 @@ export class QuizGenerationService extends BaseLLMService {
       const parsed = JSON.parse(fixedJson);
       
       // 基础验证
-      if (parsed.id && parsed.title && Array.isArray(parsed.questions)) {
-        return {
-          id: parsed.id,
-          title: parsed.title,
-          questions: parsed.questions.map((q: Question) => ({ ...q, userAnswer: undefined })),
-          createdAt: parsed.createdAt || Date.now()
-        };
+      if (!parsed.title || !Array.isArray(parsed.questions)) {
+        return undefined;
       }
+      
+      // 为每个问题添加用户答案字段
+      const questionsWithAnswers = parsed.questions.map((q: Question) => ({
+        ...q,
+        userAnswer: undefined
+      }));
+      
+      return {
+        id: parsed.id || this.generateRequestId('quiz'),
+        title: parsed.title,
+        questions: questionsWithAnswers,
+        createdAt: parsed.createdAt || Date.now()
+      };
     } catch {
-      // 解析失败，返回undefined
+      return undefined;
     }
-    
-    return undefined;
   }
 }
 

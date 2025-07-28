@@ -5,7 +5,8 @@
 
 import type { Quiz, GradingResult } from '@/types';
 import { BaseLLMService, type ProgressCallback, type ValidationResult } from './baseService';
-import { generateGradingPrompt, validateGradingJSON, extractGradingJSONFromStream } from '../prompt/quizGrading';
+import { generateGradingPrompt, validateGradingJSON } from '../prompt/quizGrading';
+import { extractJSONFromStream } from '../utils/jsonUtils';
 import { logger } from '@/stores/useLogStore';
 import type { LLMClient } from '../api/client';
 
@@ -50,7 +51,9 @@ export class QuizGradingService extends BaseLLMService {
       
       return result;
     } catch (error) {
-      this.handleLLMError(error, requestId, '试卷批改');
+      const errorMessage = error instanceof Error ? error.message : '未知错误';
+      logger.llm.error('试卷批改失败', { requestId, error: errorMessage });
+      throw new Error(`试卷批改失败: ${errorMessage}`);
     }
   }
 
@@ -73,13 +76,7 @@ export class QuizGradingService extends BaseLLMService {
       {
         temperature: 0.3,
         maxTokens: 3000,
-        extractJSON: (content: string) => {
-          const result = extractGradingJSONFromStream(content);
-          return {
-            json: result.json || null,
-            isComplete: result.isComplete
-          };
-        },
+        extractJSON: extractJSONFromStream,
         validateJSON: (json: string) => this.validateGradingResponse(json),
         parsePartial: (json: string) => this.parsePartialGradingResult(json),
         onProgress

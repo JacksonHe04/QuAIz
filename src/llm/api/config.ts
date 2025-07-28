@@ -18,10 +18,10 @@ export interface LLMConfig {
  */
 export const DEFAULT_LLM_CONFIG: LLMConfig = {
   apiKey: import.meta.env.VITE_LLM_API_KEY || '',
-  baseUrl: import.meta.env.VITE_LLM_BASE_URL || 'https://api.openai.com/v1',
-  model: import.meta.env.VITE_LLM_MODEL || 'gpt-3.5-turbo',
-  maxTokens: 4000,
-  temperature: 0.7,
+  baseUrl: import.meta.env.VITE_LLM_BASE_URL || 'https://open.bigmodel.cn/api/paas/v4',
+  model: import.meta.env.VITE_LLM_MODEL || 'glm-4-flash-250414',
+  maxTokens: Number(import.meta.env.VITE_LLM_MAX_TOKENS) || 4000,
+  temperature: Number(import.meta.env.VITE_LLM_TEMPERATURE) || 0.7,
   stream: true
 };
 
