@@ -16,7 +16,7 @@ type LogStore = LogState & LogActions & StreamActions;
  */
 export const useLogStore = create<LogStore>((set) => {
   // 配置常量
-  const MAX_LOGS = 10000;
+  const MAX_LOGS = 1000000;
   const MAX_STREAM_SESSIONS = 50;
 
   // 创建actions
