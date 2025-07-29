@@ -4,6 +4,7 @@
  */
 
 import type { LLMClient, Message } from '../../api/client';
+import { DEFAULT_LLM_CONFIG } from '../../api/config';
 import { logger } from '@/stores/useLogStore';
 import { handleLLMError } from '../errorUtils';
 import type { StreamRequestOptions, StreamState } from './types';
@@ -178,15 +179,10 @@ export async function executeStreamLLMRequest<T>(
   operation: string,
   options: StreamRequestOptions<T>
 ): Promise<T> {
-  const { temperature = 0.7, maxTokens = 4000 } = options;
+  const { temperature = DEFAULT_LLM_CONFIG.temperature, maxTokens = DEFAULT_LLM_CONFIG.maxTokens } = options;
   const processor = new StreamProcessor(requestId, operation, options);
 
   try {
-    logger.llm.info(`开始流式${operation}请求`, {
-      requestId,
-      messageCount: messages.length
-    });
-
     for await (const chunk of llmClient.chatStream({
       messages,
       temperature,

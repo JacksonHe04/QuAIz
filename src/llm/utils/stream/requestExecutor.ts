@@ -4,6 +4,7 @@
  */
 
 import type { LLMClient, Message } from '../../api/client';
+import { DEFAULT_LLM_CONFIG } from '../../api/config';
 import { logger } from '@/stores/useLogStore';
 import { handleLLMError } from '../errorUtils';
 import type { BaseRequestOptions } from './types';
@@ -24,11 +25,9 @@ export async function executeLLMRequest(
   operation: string,
   options: BaseRequestOptions = {}
 ): Promise<string> {
-  const { temperature = 0.7, maxTokens = 4000 } = options;
+  const { temperature = DEFAULT_LLM_CONFIG.temperature, maxTokens = DEFAULT_LLM_CONFIG.maxTokens } = options;
   
-  try {
-    logger.llm.info(`发送${operation}请求到LLM`, { requestId, messageCount: messages.length });
-    
+  try {    
     const response = await llmClient.chat({
       messages,
       temperature,

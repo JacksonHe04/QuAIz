@@ -4,6 +4,7 @@
  */
 
 import type { LLMClient, Message } from '../../api/client';
+import { DEFAULT_LLM_CONFIG } from '../../api/config';
 import { logger } from '@/stores/useLogStore';
 import { handleLLMError } from '../errorUtils';
 import type { TextStreamOptions } from './types';
@@ -24,7 +25,7 @@ export async function executeTextStreamLLMRequest(
   operation: string,
   options: TextStreamOptions = {}
 ): Promise<string> {
-  const { temperature = 0.7, maxTokens = 4000, onProgress } = options;
+  const { temperature = DEFAULT_LLM_CONFIG.temperature, maxTokens = DEFAULT_LLM_CONFIG.maxTokens, onProgress } = options;
   
   let accumulatedContent = '';
   let chunkCount = 0;
@@ -33,8 +34,6 @@ export async function executeTextStreamLLMRequest(
   const streamSessionId = logger.stream.start(requestId, operation);
   
   try {
-    logger.llm.info(`开始流式${operation}请求`, { requestId, messageCount: messages.length });
-    
     for await (const chunk of llmClient.chatStream({
       messages,
       temperature,

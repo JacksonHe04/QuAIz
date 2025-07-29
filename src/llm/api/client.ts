@@ -69,9 +69,9 @@ export class LLMClient {
     return JSON.stringify({
       model: this.config.model,
       messages,
-      temperature: options.temperature ?? 0.7,
-      max_tokens: options.max_tokens ?? 4000,
-      stream: options.stream ?? false
+      temperature: options.temperature ?? this.config.temperature,
+      max_tokens: options.max_tokens ?? this.config.maxTokens,
+      stream: options.stream ?? true
     });
   }
 
@@ -84,10 +84,17 @@ export class LLMClient {
   }
 
   /**
-   * 验证配置
+   * 验证配置是否完整
    */
   private validateConfig(): boolean {
     return !!(this.config.apiKey && this.config.baseUrl && this.config.model);
+  }
+
+  /**
+   * 获取当前配置信息
+   */
+  getConfig(): LLMConfig {
+    return { ...this.config };
   }
 
   /**
@@ -100,9 +107,16 @@ export class LLMClient {
   }): Promise<SimpleLLMResponse> {
     const requestId = `chat-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     
+    // 构建实际请求参数
+    const requestParams = {
+      model: this.config.model,
+      messages: options.messages,
+      temperature: options.temperature ?? this.config.temperature,
+      max_tokens: options.max_tokens ?? this.config.maxTokens,
+      stream: false
+    };
+    
     try {
-      logger.llm.info('开始普通聊天请求', { requestId, messageCount: options.messages.length });
-      
       if (!this.validateConfig()) {
         const error = 'LLM API配置不完整，请检查apiKey、baseUrl和model配置';
         logger.llm.error('配置验证失败', { requestId, error });
@@ -112,10 +126,10 @@ export class LLMClient {
       const response = await fetch(`${this.config.baseUrl}/chat/completions`, {
         method: 'POST',
         headers: this.buildHeaders(),
-        body: this.buildRequestBody(options.messages, {
-          temperature: options.temperature,
-          max_tokens: options.max_tokens,
-          stream: false
+        body: this.buildRequestBody(requestParams.messages, {
+          temperature: requestParams.temperature,
+          max_tokens: requestParams.max_tokens,
+          stream: requestParams.stream
         })
       });
       
@@ -156,9 +170,16 @@ export class LLMClient {
   }): AsyncGenerator<string, void, unknown> {
     const requestId = `chat-stream-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     
+    // 构建实际请求参数
+    const requestParams = {
+      model: this.config.model,
+      messages: options.messages,
+      temperature: options.temperature ?? this.config.temperature,
+      max_tokens: options.max_tokens ?? this.config.maxTokens,
+      stream: true
+    };
+    
     try {
-      logger.llm.info('开始流式聊天请求', { requestId, messageCount: options.messages.length });
-      
       if (!this.validateConfig()) {
         const error = 'LLM API配置不完整，请检查apiKey、baseUrl和model配置';
         logger.llm.error('配置验证失败', { requestId, error });
@@ -168,10 +189,10 @@ export class LLMClient {
       const response = await fetch(`${this.config.baseUrl}/chat/completions`, {
         method: 'POST',
         headers: this.buildHeaders(),
-        body: this.buildRequestBody(options.messages, {
-          temperature: options.temperature,
-          max_tokens: options.max_tokens,
-          stream: true
+        body: this.buildRequestBody(requestParams.messages, {
+          temperature: requestParams.temperature,
+          max_tokens: requestParams.max_tokens,
+          stream: requestParams.stream
         })
       });
       

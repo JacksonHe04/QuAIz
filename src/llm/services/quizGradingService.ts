@@ -33,7 +33,10 @@ export class QuizGradingService extends BaseLLMService {
         messages,
         requestId,
         '试卷批改',
-        { temperature: 0.3, maxTokens: 3000 } // 批改时使用较低的温度以保证一致性
+        { 
+          temperature: 0.3, // 批改时使用较低的温度以保证一致性和准确性
+          maxTokens: 30000, // 增加最大token数以确保完整批改
+        }
       );
       
       const validation = this.validateGradingResponse(response);
@@ -74,7 +77,7 @@ export class QuizGradingService extends BaseLLMService {
       requestId,
       '试卷批改',
       {
-        temperature: 0.3,
+        temperature: 0.3, // 批改时使用较低的温度以保证一致性和准确性
         maxTokens: 3000,
         extractJSON: extractJSONFromStream,
         validateJSON: (json: string) => this.validateGradingResponse(json),

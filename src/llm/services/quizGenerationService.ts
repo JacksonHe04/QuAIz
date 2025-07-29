@@ -46,8 +46,7 @@ export class QuizGenerationService extends BaseLLMService {
       const response = await this.executeLLMRequest(
         messages,
         requestId,
-        '试卷生成',
-        { temperature: 0.7, maxTokens: 4000 }
+        '试卷生成'
       );
       
       const validation = this.validateQuizResponse(response);
@@ -83,7 +82,6 @@ export class QuizGenerationService extends BaseLLMService {
     optionsOrCallback: QuizProgressCallback | StreamingOptions
   ): Promise<Quiz> {
     const requestId = this.generateRequestId('quiz-stream');
-    logger.llm.info(`开始流式生成试卷: ${request.subject}`, { requestId, request });
     
     // 处理参数兼容性
     const options: StreamingOptions = typeof optionsOrCallback === 'function' 
@@ -94,13 +92,25 @@ export class QuizGenerationService extends BaseLLMService {
     const totalQuestions = getTotalQuestionCount(request as unknown as Record<string, unknown>);
     let processedQuestions = 0;
     
+    // 记录详细的请求信息，包括LLM参数
+    const config = this.llmClient.getConfig();
+    logger.llm.info(`开始流式生成试卷: ${request.subject}`, { 
+      requestId, 
+      request,
+      messageCount: messages.length,
+      requestParams: {
+        model: config.model,
+        temperature: config.temperature,
+        max_tokens: config.maxTokens,
+        stream: true
+      }
+    });
+    
     const result = await this.executeStreamLLMRequest<Quiz>(
       messages,
       requestId,
       '试卷生成',
       {
-        temperature: 0.7,
-        maxTokens: 4000,
         extractJSON: (content: string) => {
           const result = extractJSONFromStream(content);
           return {
