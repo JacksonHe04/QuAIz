@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { useAppStore } from '@/stores/useAppStore';
 import { QuestionRenderer } from '@/components/Question/QuestionRenderer';
-import { Menu, X } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import {
   QuizHeader,
   QuizNavigation,
@@ -12,6 +12,9 @@ import {
   useQuizSubmission,
   useQuizStatus
 } from './hooks';
+import { FloatingButton } from '@/components/FloatingButton';
+import { FloatingPanel } from '@/components/FloatingPanel';
+import { OptimizedFloatingTimeRecorder } from '@/components/TimeRecorder';
 
 /**
  * 答题页面
@@ -91,47 +94,39 @@ export const QuizPage: React.FC = () => {
       />
 
       <div className="max-w-4xl mx-auto px-4 py-8 pt-32 relative">
-        {/* 圆形导航按钮 - 桌面端和移动端 */}
-           <div>
-             <button
-               onClick={() => setIsNavigationVisible(!isNavigationVisible)}
-               className="fixed top-40 z-40 bg-blue-600 text-white shadow-lg hover:bg-blue-700 hover:scale-110 transition-all duration-200 flex items-center justify-center
-                         lg:right-4 lg:w-12 lg:h-12 lg:rounded-full
-                         right-0 w-8 h-16 rounded-l-full"
-               title="题目导航"
-             >
-               <Menu className="w-5 h-5" />
-             </button>
-          
-          {/* 可折叠的导航面板 */}
-           {isNavigationVisible && (
-                <div className="fixed top-32 z-40 w-64 bg-white rounded-lg shadow-xl overflow-hidden
-                             lg:right-4 right-2">
-                  <div className="p-4 border-b border-gray-200 flex items-center justify-between">
-                    <h3 className="font-medium text-gray-900">题目导航</h3>
-                    <button
-                      onClick={() => setIsNavigationVisible(false)}
-                      className="text-gray-400 hover:text-gray-600"
-                    >
-                      <X className="w-5 h-5" />
-                    </button>
-                  </div>
-                 <div className="p-4 overflow-y-auto max-h-[calc(100vh-12rem)]">
-                   <QuizNavigation
-                     quiz={quiz}
-                     currentQuestionIndex={currentQuestionIndex}
-                     onQuestionSelect={(index) => {
-                       handleQuestionSelect(index);
-                       setIsNavigationVisible(false);
-                     }}
-                     isQuestionAnswered={isQuestionAnswered}
-                   />
-                 </div>
-                </div>
-            )}
-        </div>
-        
+        {/* 题目导航按钮 */}
+         <FloatingButton
+           icon={Menu}
+           onClick={() => setIsNavigationVisible(!isNavigationVisible)}
+           position="right"
+           color="bg-blue-600"
+           hoverColor="hover:bg-blue-700"
+           title="题目导航"
+           top="top-40"
+         />
 
+        {/* 浮动时间记录组件 */}
+        <OptimizedFloatingTimeRecorder />
+          
+        {/* 题目导航面板 */}
+        <FloatingPanel
+          isVisible={isNavigationVisible}
+          onClose={() => setIsNavigationVisible(false)}
+          title="题目导航"
+          position="right"
+          top="top-72"
+          width="w-64"
+        >
+          <QuizNavigation
+            quiz={quiz}
+            currentQuestionIndex={currentQuestionIndex}
+            onQuestionSelect={(index) => {
+              handleQuestionSelect(index);
+              setIsNavigationVisible(false);
+            }}
+            isQuestionAnswered={isQuestionAnswered}
+          />
+        </FloatingPanel>
 
         {/* 主内容区域 */}
         <div className="w-full">

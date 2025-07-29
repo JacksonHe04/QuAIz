@@ -36,6 +36,7 @@ export class GenerationStateManager {
    * 设置生成中状态
    */
   setGenerating(): void {
+    const startTime = Date.now();
     this.set((state: AppState) => ({
       ...state,
       generation: {
@@ -44,7 +45,10 @@ export class GenerationStateManager {
         error: null,
         progress: 0,
         streamingQuestions: [],
-        completedQuestionCount: 0
+        completedQuestionCount: 0,
+        startTime,
+        endTime: undefined,
+        duration: undefined
       }
     }));
   }
@@ -53,14 +57,22 @@ export class GenerationStateManager {
    * 设置错误状态
    */
   setError(error: string): void {
-    this.set((state: AppState) => ({
-      ...state,
-      generation: {
-        ...state.generation,
-        status: 'error',
-        error
-      }
-    }));
+    const endTime = Date.now();
+    this.set((state: AppState) => {
+      const startTime = state.generation.startTime;
+      const duration = startTime ? endTime - startTime : undefined;
+      
+      return {
+        ...state,
+        generation: {
+          ...state.generation,
+          status: 'error',
+          error,
+          endTime,
+          duration
+        }
+      };
+    });
   }
 
   /**
@@ -136,18 +148,26 @@ export class GenerationStateManager {
    * 设置完成状态
    */
   setComplete(quiz: Quiz): void {
-    this.set((state: AppState) => ({
-      ...state,
-      generation: {
-        ...state.generation,
-        status: 'complete',
-        currentQuiz: quiz,
-        progress: 100
-      },
-      answering: {
-        currentQuestionIndex: 0,
-        isSubmitted: false
-      }
-    }));
+    const endTime = Date.now();
+    this.set((state: AppState) => {
+      const startTime = state.generation.startTime;
+      const duration = startTime ? endTime - startTime : undefined;
+      
+      return {
+        ...state,
+        generation: {
+          ...state.generation,
+          status: 'complete',
+          currentQuiz: quiz,
+          progress: 100,
+          endTime,
+          duration
+        },
+        answering: {
+          currentQuestionIndex: 0,
+          isSubmitted: false
+        }
+      };
+    });
   }
 }

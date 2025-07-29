@@ -1,6 +1,7 @@
 import React from 'react';
 import { useAppStore } from '@/stores/useAppStore';
 import { StreamingQuestionRenderer } from '@/components/Question/StreamingQuestionRenderer';
+import { OptimizedFloatingTimeRecorder } from '@/components/TimeRecorder';
 
 /**
  * 流式试卷页面组件
@@ -12,7 +13,13 @@ export const StreamingQuizPage: React.FC = () => {
     resetApp
   } = useAppStore();
 
-  const { status, error, streamingQuestions, completedQuestionCount, progress } = generation;
+  const { 
+    status, 
+    error, 
+    streamingQuestions, 
+    completedQuestionCount, 
+    progress
+  } = generation;
 
   // 处理返回按钮
   const handleGoBack = () => {
@@ -94,20 +101,6 @@ export const StreamingQuizPage: React.FC = () => {
               <div className="text-sm text-gray-600">
                 已完成: {completedQuestionCount} 题
               </div>
-              
-              {status === 'generating' && (
-                <div className="flex items-center gap-2">
-                  <span className="text-blue-600 text-sm">⏰</span>
-                  <span className="text-sm text-blue-600">生成中</span>
-                </div>
-              )}
-              
-              {status === 'complete' && (
-                <div className="flex items-center gap-2">
-                  <span className="text-green-600 text-sm">✓</span>
-                  <span className="text-sm text-green-600">已完成</span>
-                </div>
-              )}
             </div>
           </div>
           
@@ -122,6 +115,9 @@ export const StreamingQuizPage: React.FC = () => {
               </div>
             </div>
           )}
+        
+        {/* 浮动时间记录组件 */}
+        <OptimizedFloatingTimeRecorder />
         </div>
       </div>
 

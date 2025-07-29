@@ -6,6 +6,7 @@ import {
   PresetModal,
   SavePresetModal
 } from './components';
+import { OptimizedFloatingTimeRecorder } from '@/components/TimeRecorder';
 
 
 
@@ -94,6 +95,9 @@ export const GenerationPage: React.FC = () => {
           />
         </div>
       </div>
+
+      {/* 浮动时间记录组件 */}
+      <OptimizedFloatingTimeRecorder />
 
       {/* 预设选择模态框 */}
       <PresetModal 

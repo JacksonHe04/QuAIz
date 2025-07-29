@@ -30,6 +30,10 @@ export interface GenerationState {
   progress?: number;
   streamingQuestions?: StreamingQuestion[];
   completedQuestionCount?: number;
+  // 时间记录字段
+  startTime?: number;
+  endTime?: number;
+  duration?: number;
 }
 
 /**
