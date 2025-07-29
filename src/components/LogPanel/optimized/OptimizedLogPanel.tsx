@@ -3,12 +3,12 @@ import { VariableSizeList as List } from 'react-window';
 import type { ListOnScrollProps } from 'react-window';
 import { useLogStore } from '@/stores/useLogStore';
 import { VirtualizedLogList } from './VirtualizedLogList';
-import { StreamSessionComponent } from './StreamSession';
-import { TabHeader } from './TabHeader';
-import { EmptyState } from './EmptyState';
-import { PanelHeader } from './PanelHeader';
-import { BottomControls } from './BottomControls';
-import { FloatingToggle } from './FloatingToggle';
+import { StreamSessionComponent } from '../components/StreamSession';
+import { TabHeader } from '../components/TabHeader';
+import { EmptyState } from '../components/EmptyState';
+import { PanelHeader } from '../components/PanelHeader';
+import { BottomControls } from '../components/BottomControls';
+import { FloatingToggle } from '../components/FloatingToggle';
 
 /**
  * 优化后的日志面板组件

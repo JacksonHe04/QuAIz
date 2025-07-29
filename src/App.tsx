@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { AppRouter } from '@/router/AppRouter';
-import { LogPanelProvider } from '@/components/LogPanelProvider';
+import { LogPanelProvider } from '@/components/LogPanel/LogPanelProvider';
 import { useAppStore } from '@/stores/useAppStore';
 import { syncTimeRecorderWithAppState } from '@/stores/timeRecorderStore';
 

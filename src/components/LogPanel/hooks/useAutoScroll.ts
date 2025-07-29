@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { isScrolledToBottom, scrollToBottom } from '../utils';
-import { AUTO_SCROLL_THRESHOLD } from '../constants';
+import { isScrolledToBottom, scrollToBottom } from '../utils/utils';
+import { AUTO_SCROLL_THRESHOLD } from '../utils/constants';
 
 /**
  * 自动滚动Hook

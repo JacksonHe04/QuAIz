@@ -6,7 +6,7 @@ import {
   getCategoryIcon, 
   formatTimestamp,
   formatDetails
-} from './utils';
+} from '../utils/utils';
 import { CopyButton } from './CopyButton';
 
 /**

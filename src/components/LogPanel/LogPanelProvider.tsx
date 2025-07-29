@@ -1,5 +1,5 @@
 import React from 'react';
-import { OptimizedLogPanel } from '@/components/LogPanel/OptimizedLogPanel';
+import { OptimizedLogPanel } from './optimized/OptimizedLogPanel';
 import { useLogStore } from '@/stores/useLogStore';
 
 /**

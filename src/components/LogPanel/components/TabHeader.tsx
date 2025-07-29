@@ -1,5 +1,5 @@
 import React from 'react';
-import { TAB_CONFIG } from './constants';
+import { TAB_CONFIG } from '../utils/constants';
 
 /**
  * 标签页头部组件属性

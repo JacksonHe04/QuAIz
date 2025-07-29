@@ -1,6 +1,6 @@
 import React from 'react';
 import type { StreamSession } from '@/stores/useLogStore';
-import { TAB_CONFIG } from './constants';
+import { TAB_CONFIG } from '../utils/constants';
 
 /**
  * 空状态组件属性

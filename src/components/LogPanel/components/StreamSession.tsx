@@ -1,6 +1,6 @@
 import React from 'react';
 import type { StreamSession } from '@/stores/useLogStore';
-import { formatTimestamp, formatDuration } from './utils';
+import { formatTimestamp, formatDuration } from '../utils/utils';
 import { CopyButton } from './CopyButton';
 
 /**

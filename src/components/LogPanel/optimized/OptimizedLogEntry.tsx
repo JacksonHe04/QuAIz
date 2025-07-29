@@ -6,8 +6,8 @@ import {
   getCategoryIcon, 
   formatTimestamp,
   formatDetails
-} from './utils';
-import { CopyButton } from './CopyButton';
+} from '../utils/utils';
+import { CopyButton } from '../components/CopyButton';
 
 /**
  * 日志条目组件属性

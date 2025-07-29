@@ -7,7 +7,7 @@ import { EmptyState } from './EmptyState';
 import { PanelHeader } from './PanelHeader';
 import { BottomControls } from './BottomControls';
 import { FloatingToggle } from './FloatingToggle';
-import { useAutoScroll } from './hooks/useAutoScroll';
+import { useAutoScroll } from '../hooks/useAutoScroll';
 
 /**
  * 日志面板组件

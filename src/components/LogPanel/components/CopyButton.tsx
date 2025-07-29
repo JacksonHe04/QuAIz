@@ -1,6 +1,6 @@
 import React from 'react';
-import { copyToClipboard } from './utils';
-import { COPY_SUCCESS_DURATION } from './constants';
+import { copyToClipboard } from '../utils/utils';
+import { COPY_SUCCESS_DURATION } from '../utils/constants';
 
 /**
  * 复制按钮组件属性
