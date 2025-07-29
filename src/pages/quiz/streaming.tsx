@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAppStore } from '@/stores/useAppStore';
-import { StreamingQuestionRenderer } from '@/components/Question/StreamingQuestionRenderer';
+import { OptimizedStreamingQuestionRenderer } from '@/components/Question/OptimizedStreamingQuestionRenderer';
 import { OptimizedFloatingTimeRecorder } from '@/components/TimeRecorder';
 
 /**
@@ -126,7 +126,7 @@ export const StreamingQuizPage: React.FC = () => {
         {streamingQuestions && streamingQuestions.length > 0 ? (
           <div className="space-y-6">
             {streamingQuestions.map((question, index) => (
-               <StreamingQuestionRenderer
+               <OptimizedStreamingQuestionRenderer
                  key={question.id || `streaming-${index}`}
                  question={question}
                  questionNumber={index + 1}

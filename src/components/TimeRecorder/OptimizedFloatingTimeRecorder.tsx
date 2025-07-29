@@ -31,7 +31,7 @@ export const OptimizedFloatingTimeRecorder: React.FC = () => {
     if (generation.status) {
       syncTimeRecorderWithAppState(generation);
     }
-  }, [generation.status]); // 只监听状态变化，减少不必要的同步
+  }, [generation]); // 监听整个generation对象的变化
 
   // 实时更新计时器（生成中状态）- 独立于状态同步
   useEffect(() => {
@@ -49,7 +49,7 @@ export const OptimizedFloatingTimeRecorder: React.FC = () => {
         clearInterval(interval);
       }
     };
-  }, [status, startTime]); // 移除updateCurrentDuration依赖，避免重复创建定时器
+  }, [status, startTime, updateCurrentDuration]); // 包含所有依赖项
 
   /**
    * 获取显示的耗时

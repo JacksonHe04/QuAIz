@@ -14,7 +14,7 @@ function App() {
   // 同步时间记录状态
   useEffect(() => {
     syncTimeRecorderWithAppState(generation);
-  }, [generation.status, generation.startTime, generation.endTime, generation.duration]);
+  }, [generation]);
 
   return (
     <LogPanelProvider>

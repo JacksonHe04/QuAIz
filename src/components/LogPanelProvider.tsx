@@ -1,5 +1,5 @@
 import React from 'react';
-import { LogPanel } from '@/components/LogPanel';
+import { OptimizedLogPanel } from '@/components/LogPanel/OptimizedLogPanel';
 import { useLogStore } from '@/stores/useLogStore';
 
 /**
@@ -12,7 +12,7 @@ export const LogPanelProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   return (
     <div className="flex h-screen overflow-hidden">
       {/* 日志面板 */}
-      <LogPanel />
+      <OptimizedLogPanel />
       
       {/* 主内容区域 */}
       <div className={`flex-1 transition-all duration-300 ease-in-out overflow-auto ${
