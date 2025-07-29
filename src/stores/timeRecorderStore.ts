@@ -102,7 +102,11 @@ export const useTimeRecorderStore = create<TimeRecorderStore>()(subscribeWithSel
   },
 
   updateCurrentDuration: (duration: number) => {
-    set({ currentDuration: duration });
+    // 避免过于频繁的状态更新，减少性能开销
+    const currentState = get();
+    if (Math.abs(duration - currentState.currentDuration) > 50) {
+      set({ currentDuration: duration });
+    }
   },
 
   toggleExpanded: () => {
@@ -116,7 +120,7 @@ export const useTimeRecorderStore = create<TimeRecorderStore>()(subscribeWithSel
 
 /**
  * 同步主应用状态到时间记录状态
- * 在应用初始化时调用
+ * 避免重复同步和状态冲突，优化性能
  */
 export const syncTimeRecorderWithAppState = (generationState: {
   status: string;
@@ -129,7 +133,11 @@ export const syncTimeRecorderWithAppState = (generationState: {
   
   // 如果时间记录已经完成，不再同步（保护已完成的记录）
   if (currentTimeState.status === 'completed' && currentTimeState.startTime) {
-    console.log('⏰ 时间记录已完成，跳过同步以保护记录');
+    return;
+  }
+  
+  // 避免相同状态的重复同步
+  if (currentTimeState.status === generationState.status) {
     return;
   }
   

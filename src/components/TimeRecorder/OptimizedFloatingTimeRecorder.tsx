@@ -25,12 +25,15 @@ export const OptimizedFloatingTimeRecorder: React.FC = () => {
     setExpanded
   } = useTimeRecorderStore();
 
-  // 同步主应用状态到时间记录状态
+  // 同步主应用状态到时间记录状态 - 优化触发条件
   useEffect(() => {
-    syncTimeRecorderWithAppState(generation);
-  }, [generation.status, generation.startTime, generation.endTime, generation.duration]);
+    // 只在关键状态变化时同步，避免频繁调用
+    if (generation.status) {
+      syncTimeRecorderWithAppState(generation);
+    }
+  }, [generation.status]); // 只监听状态变化，减少不必要的同步
 
-  // 实时更新计时器（生成中状态）
+  // 实时更新计时器（生成中状态）- 独立于状态同步
   useEffect(() => {
     let interval: NodeJS.Timeout;
     
@@ -38,7 +41,7 @@ export const OptimizedFloatingTimeRecorder: React.FC = () => {
       interval = setInterval(() => {
         const newDuration = Date.now() - startTime;
         updateCurrentDuration(newDuration);
-      }, 50); // 每50ms更新一次，提高精度
+      }, 100); // 每100ms更新一次，减少性能开销
     }
     
     return () => {
@@ -46,7 +49,7 @@ export const OptimizedFloatingTimeRecorder: React.FC = () => {
         clearInterval(interval);
       }
     };
-  }, [status, startTime, updateCurrentDuration]);
+  }, [status, startTime]); // 移除updateCurrentDuration依赖，避免重复创建定时器
 
   /**
    * 获取显示的耗时
@@ -154,13 +157,33 @@ export const OptimizedFloatingTimeRecorder: React.FC = () => {
 
           {/* 耗时显示 */}
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-600">耗时</span>
+            <span className="text-sm text-gray-600">总耗时</span>
             <span className={`text-sm font-mono font-medium ${
               status === 'generating' ? 'text-blue-600' : 'text-gray-900'
             }`}>
               {formatDurationPrecise(displayDuration)}
             </span>
           </div>
+
+          {/* 平均每题生成时间 */}
+          {status === 'completed' && generation.currentQuiz && generation.currentQuiz.questions.length > 0 && (
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-600">平均每题</span>
+              <span className="text-sm font-mono font-medium text-green-600">
+                {formatDurationPrecise(Math.round(displayDuration / generation.currentQuiz.questions.length))}
+              </span>
+            </div>
+          )}
+
+          {/* 题目总数显示 */}
+          {generation.currentQuiz && generation.currentQuiz.questions.length > 0 && (
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-600">题目总数</span>
+              <span className="text-sm font-medium text-gray-900">
+                {generation.currentQuiz.questions.length} 题
+              </span>
+            </div>
+          )}
 
           {/* 性能提示 */}
           {displayDuration > 30000 && (
@@ -172,7 +195,7 @@ export const OptimizedFloatingTimeRecorder: React.FC = () => {
           {/* 实时更新提示 */}
           {status === 'generating' && (
             <div className="mt-2 text-xs text-gray-500 text-center">
-              ⏱️ 实时更新中（精度：50ms）
+              ⏱️ 实时更新中（精度：100ms）
             </div>
           )}
         </div>
