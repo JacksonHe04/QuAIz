@@ -677,7 +677,7 @@ A: 可以在 `src/types/index.ts` 中添加新的题型定义，然后在 `src/c
   <p>Made with ❤️ by JacksonHe04</p>
   <p><strong>QuAIz</strong> - 让AI为教育赋能，让学习更加智能高效！</p>
   <br>
-  <p>📅 <strong>文档最后更新</strong>: 2025年1月29日</p>
+  <p>📅 <strong>文档最后更新</strong>: 2025年7月29日</p>
   <p>🔄 <strong>最新版本</strong>: v2.0.0 (性能优化版)</p>
   <p>👨‍💻 <strong>维护者</strong>: JacksonHe04</p>
 </div>
