@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from 'react';
+import React, { memo, useMemo, useState, useCallback } from 'react';
 import type { LogEntry } from '@/stores/useLogStore';
 import { 
   getLogLevelStyles, 
@@ -15,13 +15,18 @@ import { CopyButton } from '../components/CopyButton';
 interface LogEntryProps {
   /** 日志条目数据 */
   log: LogEntry;
+  /** 高度变化回调函数 */
+  onHeightChange?: (logId: string, newHeight: number) => void;
 }
 
 /**
  * 优化后的日志条目组件
  * 使用React.memo和useMemo进行性能优化
  */
-const OptimizedLogEntry: React.FC<LogEntryProps> = memo(({ log }) => {
+const OptimizedLogEntry: React.FC<LogEntryProps> = memo(({ log, onHeightChange }) => {
+  // 展开状态管理
+  const [isExpanded, setIsExpanded] = useState(false);
+  
   // 缓存样式计算结果
   const styles = useMemo(() => ({
     levelStyles: getLogLevelStyles(log.level),
@@ -34,6 +39,31 @@ const OptimizedLogEntry: React.FC<LogEntryProps> = memo(({ log }) => {
     timestamp: formatTimestamp(log.timestamp),
     details: log.details != null ? formatDetails(log.details) : null
   }), [log.timestamp, log.details]);
+  
+  // 处理展开状态变化
+  const handleToggle = useCallback(() => {
+    const newExpanded = !isExpanded;
+    setIsExpanded(newExpanded);
+    
+    // 通知父组件高度变化
+    if (onHeightChange) {
+      // 计算新的高度
+      let newHeight = 80; // 基础高度
+      
+      // 根据消息长度调整高度
+      if (log.message.length > 50) {
+        newHeight += Math.ceil(log.message.length / 50) * 20;
+      }
+      
+      // 如果展开了详细信息，增加额外高度
+      if (newExpanded && formattedData.details) {
+        const detailsLines = formattedData.details.split('\n').length;
+        newHeight += Math.max(100, detailsLines * 16 + 60); // 详细信息区域高度
+      }
+      
+      onHeightChange(log.id, newHeight);
+    }
+  }, [isExpanded, onHeightChange, log.id, log.message.length, formattedData.details]);
   
   return (
     <div className={`p-3 border-l-4 mb-2 rounded-r ${styles.levelStyles}`}>
@@ -60,20 +90,30 @@ const OptimizedLogEntry: React.FC<LogEntryProps> = memo(({ log }) => {
       
       {/* 详细信息（可选） */}
       {formattedData.details && (
-        <details className="text-xs opacity-75">
-          <summary className="cursor-pointer hover:opacity-100">详细信息</summary>
-          <div className="mt-1 relative">
-            <pre className="p-2 bg-black bg-opacity-10 rounded text-xs overflow-x-auto pr-10">
-              {formattedData.details}
-            </pre>
-            <div className="absolute top-1 right-1">
-              <CopyButton
-                text={formattedData.details}
-                title="复制详细信息"
-              />
-            </div>
+        <div className="text-xs opacity-75">
+          <div 
+            className="cursor-pointer hover:opacity-100 flex items-center gap-1"
+            onClick={handleToggle}
+          >
+            <span className={`transform transition-transform ${isExpanded ? 'rotate-90' : ''}`}>
+              ▶
+            </span>
+            <span>详细信息</span>
           </div>
-        </details>
+          {isExpanded && (
+            <div className="mt-1 relative">
+              <pre className="p-2 bg-black bg-opacity-10 rounded text-xs overflow-x-auto pr-10">
+                {formattedData.details}
+              </pre>
+              <div className="absolute top-1 right-1">
+                <CopyButton
+                  text={formattedData.details}
+                  title="复制详细信息"
+                />
+              </div>
+            </div>
+          )}
+        </div>
       )}
     </div>
   );

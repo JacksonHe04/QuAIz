@@ -136,12 +136,9 @@ export const QuizPage: React.FC = () => {
                 <div
                   key={question.id}
                   ref={(el) => { questionRefs.current[index] = el; }}
-                  className={`transition-all duration-300 ${
-                    index === currentQuestionIndex 
-                      ? 'ring-2 ring-blue-500 ring-opacity-50' 
-                      : ''
-                  }`}
-                  style={{ scrollMarginTop: '140px' }}
+                  onClick={() => goToQuestion(index)}
+                  style={{ scrollMarginTop: '140px', cursor: 'pointer' }}
+                  className="transition-colors hover:bg-gray-50 rounded-lg p-2 -m-2"
                 >
                   <QuestionRenderer
                     question={question}

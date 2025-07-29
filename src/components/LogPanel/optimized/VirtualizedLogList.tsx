@@ -24,7 +24,10 @@ interface VirtualizedLogListProps {
 interface LogItemProps {
   index: number;
   style: React.CSSProperties;
-  data: LogEntry[];
+  data: {
+    logs: LogEntry[];
+    onHeightChange: (logId: string, newHeight: number) => void;
+  };
 }
 
 /**
@@ -32,12 +35,15 @@ interface LogItemProps {
  * 用于react-window的虚拟化列表
  */
 const LogItem: React.FC<LogItemProps> = memo(({ index, style, data }) => {
-  const log = data[index];
+  const log = data.logs[index];
   
   return (
     <div style={style}>
       <div className="px-4 py-1">
-        <OptimizedLogEntry log={log} />
+        <OptimizedLogEntry 
+          log={log} 
+          onHeightChange={data.onHeightChange}
+        />
       </div>
     </div>
   );
@@ -55,6 +61,8 @@ export const VirtualizedLogList = memo(forwardRef<List, VirtualizedLogListProps>
 ) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerHeight, setContainerHeight] = useState(400);
+  const [itemHeights, setItemHeights] = useState<Map<string, number>>(new Map());
+  const listRef = useRef<List>(null);
   
   // 动态计算容器高度
   useEffect(() => {
@@ -75,13 +83,36 @@ export const VirtualizedLogList = memo(forwardRef<List, VirtualizedLogListProps>
   // 缓存日志数据，避免不必要的重新渲染
   const memoizedLogs = useMemo(() => logs, [logs]);
   
+  // 处理条目高度变化的回调
+  const handleHeightChange = useCallback((logId: string, newHeight: number) => {
+    setItemHeights(prev => {
+      const newMap = new Map(prev);
+      newMap.set(logId, newHeight);
+      return newMap;
+    });
+    
+    // 重新计算列表大小
+    if (listRef.current) {
+      listRef.current.resetAfterIndex(0);
+    }
+  }, []);
+  
   // 缓存条目数据，用于传递给List组件
-  const itemData = useMemo(() => memoizedLogs, [memoizedLogs]);
+  const itemData = useMemo(() => ({
+    logs: memoizedLogs,
+    onHeightChange: handleHeightChange
+  }), [memoizedLogs, handleHeightChange]);
   
   // 动态计算条目高度的回调
   const getItemSize = useCallback((index: number) => {
     const log = memoizedLogs[index];
     if (!log) return itemHeight;
+    
+    // 如果有缓存的高度，使用缓存值
+    const cachedHeight = itemHeights.get(log.id);
+    if (cachedHeight) {
+      return cachedHeight;
+    }
     
     // 基础高度
     let height = 80;
@@ -91,13 +122,13 @@ export const VirtualizedLogList = memo(forwardRef<List, VirtualizedLogListProps>
       height += Math.ceil(log.message.length / 50) * 20;
     }
     
-    // 如果有详细信息，增加高度
+    // 如果有详细信息，增加基础高度（未展开状态）
     if (log.details) {
       height += 40;
     }
     
     return Math.max(height, itemHeight);
-  }, [memoizedLogs, itemHeight]);
+  }, [memoizedLogs, itemHeight, itemHeights]);
   
   if (memoizedLogs.length === 0) {
     return (
@@ -115,7 +146,14 @@ export const VirtualizedLogList = memo(forwardRef<List, VirtualizedLogListProps>
   return (
     <div ref={containerRef} className="h-full">
       <List
-        ref={ref}
+        ref={(listInstance) => {
+          listRef.current = listInstance;
+          if (typeof ref === 'function') {
+            ref(listInstance);
+          } else if (ref) {
+            ref.current = listInstance;
+          }
+        }}
         height={actualHeight}
         width="100%"
         itemCount={memoizedLogs.length}

@@ -35,7 +35,7 @@ export class QuizGradingService extends BaseLLMService {
         '试卷批改',
         { 
           temperature: 0.3, // 批改时使用较低的温度以保证一致性和准确性
-          maxTokens: 30000, // 增加最大token数以确保完整批改
+          maxTokens: 4096, // 增加最大token数以确保完整批改
         }
       );
       
@@ -78,7 +78,7 @@ export class QuizGradingService extends BaseLLMService {
       '试卷批改',
       {
         temperature: 0.3, // 批改时使用较低的温度以保证一致性和准确性
-        maxTokens: 3000,
+        maxTokens: 4096,
         extractJSON: extractJSONFromStream,
         validateJSON: (json: string) => this.validateGradingResponse(json),
         parsePartial: (json: string) => this.parsePartialGradingResult(json),
