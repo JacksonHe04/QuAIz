@@ -1,66 +1,95 @@
 # LogPanel 日志面板组件模块
 
-LogPanel 模块是 QuAIz 应用中负责日志展示和实时反馈的核心 UI 组件模块，为用户提供透明的操作过程展示和调试信息查看功能。
+LogPanel 模块是 QuAIz 应用中负责日志展示和实时反馈的核心 UI 组件模块，为用户提供透明的操作过程展示和调试信息查看功能。该模块采用高性能虚拟化渲染技术，支持大量日志条目的流畅显示。
 
 ## 📁 目录结构
 
 ```
 LogPanel/
-├── LogPanel.tsx             # 日志面板主组件
-├── LogEntry.tsx             # 单个日志条目组件
-├── StreamSession.tsx        # 流式会话组件
-├── TabHeader.tsx            # 标签页头部组件
-├── PanelHeader.tsx          # 面板头部组件
-├── components/              # 子组件目录
-│   ├── LogFilter.tsx        # 日志过滤器
-│   ├── LogSearch.tsx        # 日志搜索
-│   ├── ExportButton.tsx     # 导出按钮
-│   └── index.ts             # 组件导出
+├── LogPanelProvider.tsx     # 全局日志面板提供者
+├── components/              # 基础 UI 组件
+│   ├── BottomControls.tsx   # 底部控制栏
+│   ├── CopyButton.tsx       # 复制按钮组件
+│   ├── EmptyState.tsx       # 空状态展示
+│   ├── FloatingToggle.tsx   # 浮动切换按钮
+│   ├── LogEntry.tsx         # 传统日志条目
+│   ├── LogPanel.tsx         # 传统日志面板
+│   ├── PanelHeader.tsx      # 面板头部
+│   ├── StreamSession.tsx    # 流式会话组件
+│   └── TabHeader.tsx        # 标签页头部
+├── optimized/               # 性能优化组件
+│   ├── OptimizedLogEntry.tsx    # 优化的日志条目
+│   ├── OptimizedLogPanel.tsx    # 优化的日志面板
+│   └── VirtualizedLogList.tsx   # 虚拟化列表
 ├── hooks/                   # 自定义 Hooks
-│   ├── useLogPanel.ts       # 日志面板逻辑
-│   ├── useLogFilter.ts      # 日志过滤逻辑
-│   └── index.ts             # Hooks 导出
-├── utils/                   # 工具函数
-│   ├── logFormatter.ts      # 日志格式化
-│   ├── logExporter.ts       # 日志导出
-│   └── index.ts             # 工具导出
-└── index.ts                 # 模块统一导出
+│   └── useAutoScroll.ts     # 自动滚动逻辑
+├── utils/                   # 工具函数和常量
+│   ├── constants.ts         # 常量定义
+│   └── utils.ts             # 工具函数
+├── docs/                    # 文档
+│   ├── PERFORMANCE_OPTIMIZATION.md
+│   └── DETAILED_PERFORMANCE_OPTIMIZATION.md
+├── index.ts                 # 模块统一导出
+└── README.md                # 模块文档
 ```
 
 ## 🎯 核心功能
 
-### 1. 实时日志展示
+### 1. 高性能日志展示
+- **虚拟化渲染**: 支持 1000+ 条日志无卡顿滚动
 - **实时更新**: 日志条目的实时添加和更新
 - **流式显示**: 支持 AI 流式回复的实时展示
-- **自动滚动**: 新日志的自动滚动到底部
+- **智能滚动**: 自动滚动和手动控制的智能切换
 - **状态指示**: 清晰的日志状态和类型指示
 
-### 2. 多会话管理
-- **会话切换**: 在不同日志会话间切换查看
-- **会话状态**: 实时显示会话的活跃状态
-- **会话历史**: 保持会话的历史记录
-- **会话清理**: 自动清理过期会话
+### 2. 双标签页管理
+- **系统日志**: 显示应用运行日志和操作记录
+- **流式回复**: 专门展示 AI 流式生成内容
+- **标签切换**: 流畅的标签页切换体验
+- **状态同步**: 标签页状态与内容实时同步
+- **计数显示**: 实时显示各标签页的内容数量
 
-### 3. 交互功能
-- **展开收起**: 面板的展开和收起功能
-- **日志过滤**: 按类型、级别过滤日志
-- **搜索功能**: 在日志中搜索特定内容
-- **导出功能**: 导出日志到文件
+### 3. 侧边栏交互
+- **挤压布局**: 侧边栏弹出时挤压主内容区域
+- **平滑动画**: 300ms 的平滑展开收起动画
+- **浮动切换**: 面板关闭时显示浮动开启按钮
+- **响应式设计**: 适配不同屏幕尺寸的布局
+- **内容复制**: 一键复制日志和会话内容
 
 ## 📋 主要组件
 
-### LogPanel - 日志面板主组件
-- **文件**: `./LogPanel.tsx`
-- **功能**: 日志面板的主要容器组件
+### LogPanelProvider - 全局日志面板提供者
+- **文件**: `./LogPanelProvider.tsx`
+- **功能**: 在应用根级别提供全局日志面板功能
 - **特性**:
-  - 面板展开/收起控制
-  - 多标签页管理
-  - 日志列表渲染
-  - 实时更新处理
-  - 响应式布局
+  - Flex 布局实现挤压效果
+  - 全局状态管理集成
+  - 优化版日志面板集成
+  - 平滑的布局过渡动画
+  - 响应式布局适配
+
+### OptimizedLogPanel - 优化版日志面板
+- **文件**: `./optimized/OptimizedLogPanel.tsx`
+- **功能**: 集成虚拟化滚动和性能优化的主面板
+- **特性**:
+  - 虚拟化列表渲染
+  - 智能自动滚动
+  - 双标签页管理
+  - 性能优化的事件处理
+  - 内存管理和清理
+
+### VirtualizedLogList - 虚拟化日志列表
+- **文件**: `./optimized/VirtualizedLogList.tsx`
+- **功能**: 高性能的虚拟化日志列表组件
+- **特性**:
+  - react-window 虚拟化
+  - 动态高度计算
+  - 大量数据渲染优化
+  - 平滑滚动体验
+  - 内存使用优化
 
 ### LogEntry - 日志条目组件
-- **文件**: `./LogEntry.tsx`
+- **文件**: `./components/LogEntry.tsx`
 - **功能**: 单个日志条目的渲染组件
 - **特性**:
   - 多种日志类型支持
@@ -70,101 +99,113 @@ LogPanel/
   - 状态图标显示
 
 ### StreamSession - 流式会话组件
-- **文件**: `./StreamSession.tsx`
+- **文件**: `./components/StreamSession.tsx`
 - **功能**: 显示 AI 流式回复的会话组件
 - **特性**:
   - 流式内容实时渲染
-  - 打字机效果
   - 会话状态指示
-  - 内容格式化
-  - 错误状态处理
+  - 内容片段管理
+  - 展开/收起切换
+  - 持续时间计算
 
 ### TabHeader - 标签页头部
-- **文件**: `./TabHeader.tsx`
-- **功能**: 多标签页的头部导航组件
+- **文件**: `./components/TabHeader.tsx`
+- **功能**: 双标签页的头部导航组件
 - **特性**:
-  - 标签页切换
+  - 系统日志/流式回复切换
   - 活跃状态指示
-  - 关闭标签功能
-  - 新建标签按钮
-  - 标签页拖拽排序
+  - 内容计数显示
+  - 平滑切换动画
+  - 响应式设计
 
 ### PanelHeader - 面板头部
-- **文件**: `./PanelHeader.tsx`
+- **文件**: `./components/PanelHeader.tsx`
 - **功能**: 日志面板的头部工具栏
 - **特性**:
-  - 面板标题显示
-  - 工具按钮组
+  - 面板标题和计数显示
+  - 清空当前标签内容
+  - 关闭面板按钮
+  - 工具栏布局
   - 状态指示器
-  - 设置菜单
-  - 最小化/最大化控制
 
-## 🔧 子组件
+## 🔧 工具组件
 
-### LogFilter - 日志过滤器
-- **文件**: `./components/LogFilter.tsx`
-- **功能**: 日志过滤和筛选功能
+### BottomControls - 底部控制栏
+- **文件**: `./components/BottomControls.tsx`
+- **功能**: 面板底部的控制工具栏
 - **特性**:
-  - 按类型过滤
-  - 按级别过滤
-  - 按时间范围过滤
-  - 自定义过滤条件
+  - 自动滚动状态指示
+  - 滚动到底部按钮
+  - 控制栏布局管理
+  - 状态图标显示
+  - 交互反馈
 
-### LogSearch - 日志搜索
-- **文件**: `./components/LogSearch.tsx`
-- **功能**: 在日志中搜索特定内容
+### FloatingToggle - 浮动切换按钮
+- **文件**: `./components/FloatingToggle.tsx`
+- **功能**: 面板关闭时的浮动开启按钮
 - **特性**:
-  - 关键词搜索
-  - 正则表达式搜索
-  - 搜索结果高亮
-  - 搜索历史记录
+  - 固定在页面左侧
+  - 悬浮动画效果
+  - 点击展开面板
+  - 视觉提示设计
+  - 响应式定位
 
-### ExportButton - 导出按钮
-- **文件**: `./components/ExportButton.tsx`
-- **功能**: 导出日志数据到文件
+### CopyButton - 复制按钮
+- **文件**: `./components/CopyButton.tsx`
+- **功能**: 一键复制文本内容到剪贴板
 - **特性**:
-  - 多种导出格式
-  - 选择性导出
-  - 导出进度显示
-  - 导出设置配置
+  - 复制成功提示
+  - 错误处理
+  - 图标状态切换
+  - 无障碍支持
+  - 兼容性处理
+
+### EmptyState - 空状态展示
+- **文件**: `./components/EmptyState.tsx`
+- **功能**: 无内容时的占位显示组件
+- **特性**:
+  - 不同标签页的空状态
+  - 友好的提示信息
+  - 图标和文字组合
+  - 居中布局设计
+  - 视觉层次清晰
 
 ## 🎮 自定义 Hooks
 
-### useLogPanel - 日志面板逻辑
-- **文件**: `./hooks/useLogPanel.ts`
-- **功能**: 管理日志面板的状态和逻辑
+### useAutoScroll - 自动滚动逻辑
+- **文件**: `./hooks/useAutoScroll.ts`
+- **功能**: 管理日志面板的智能自动滚动逻辑
 - **提供功能**:
-  - `isExpanded` - 面板展开状态
-  - `togglePanel()` - 切换面板状态
-  - `activeTab` - 当前活跃标签
-  - `switchTab()` - 切换标签页
+  - `scrollRef` - 滚动容器的 ref 引用
+  - `isAutoScroll` - 当前自动滚动状态
+  - `handleScroll` - 滚动事件处理函数
+  - `forceScrollToBottom` - 强制滚动到底部
+- **特性**:
+  - 智能检测用户滚动行为
+  - 自动滚动状态的动态切换
+  - 依赖数组变化时自动滚动
+  - 防抖处理避免频繁更新
+  - 滚动位置的精确控制
 
-### useLogFilter - 日志过滤逻辑
-- **文件**: `./hooks/useLogFilter.ts`
-- **功能**: 管理日志过滤和搜索逻辑
-- **提供功能**:
-  - `filteredLogs` - 过滤后的日志列表
-  - `setFilter()` - 设置过滤条件
-  - `searchTerm` - 搜索关键词
-  - `setSearchTerm()` - 设置搜索词
+## 🛠️ 工具函数和常量
 
-## 🛠️ 工具函数
+### constants.ts - 常量定义
+- **功能**: 日志面板相关的常量定义
+- **包含内容**:
+  - 日志类型常量
+  - 面板尺寸配置
+  - 动画时长设置
+  - 颜色主题定义
+  - 默认配置参数
 
-### logFormatter.ts - 日志格式化
-- **功能**: 日志内容的格式化处理
+### utils.ts - 工具函数
+- **功能**: 日志面板的通用工具函数
 - **提供方法**:
-  - `formatLogMessage()` - 格式化日志消息
-  - `formatTimestamp()` - 格式化时间戳
-  - `highlightSyntax()` - 语法高亮处理
-  - `truncateMessage()` - 消息截断处理
-
-### logExporter.ts - 日志导出
-- **功能**: 日志数据的导出处理
-- **提供方法**:
-  - `exportToJSON()` - 导出为 JSON 格式
-  - `exportToCSV()` - 导出为 CSV 格式
-  - `exportToTXT()` - 导出为文本格式
-  - `generateReport()` - 生成日志报告
+  - 时间格式化函数
+  - 文本处理工具
+  - 状态判断函数
+  - 样式类名生成
+  - 数据转换工具
 
 ## 🎨 设计特点
 

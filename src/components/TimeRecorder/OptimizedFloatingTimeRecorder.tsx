@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Clock } from 'lucide-react';
 import { FloatingButton } from '@/components/FloatingButton';
-import { FloatingPanel } from '@/components/FloatingPanel';
+import { FloatingPanel } from '@/components/FloatingButton/FloatingPanel';
 import { formatDurationPrecise, formatTimestamp } from '@/utils/timeUtils';
 import { useTimeRecorderStore, syncTimeRecorderWithAppState } from '@/stores/timeRecorderStore';
 import { useAppStore } from '@/stores/useAppStore';

@@ -6,18 +6,22 @@
 
 ```
 quiz/
-├── components/              # 页面组件
-│   ├── EmptyQuizState.tsx  # 空试卷状态
-│   ├── QuizHeader.tsx      # 答题页头部
-│   ├── QuizNavigation.tsx  # 题目导航
-│   └── index.ts            # 组件导出
-├── hooks/                  # 自定义 Hooks
-│   ├── useQuizNavigation.ts # 题目导航逻辑
-│   ├── useQuizStatus.ts    # 答题状态管理
-│   ├── useQuizSubmission.ts # 答题提交逻辑
-│   └── index.ts            # Hooks 导出
-├── index.tsx               # 标准答题页面
-└── streaming.tsx           # 流式答题页面
+├── components/                           # 页面组件
+│   ├── EmptyQuizState.tsx               # 空试卷状态
+│   ├── QuizHeader.tsx                   # 答题页头部
+│   ├── QuizNavigation.tsx               # 题目导航
+│   └── index.ts                         # 组件导出
+├── docs/                                # 文档目录
+│   └── PERFORMANCE_OPTIMIZATION_ANALYSIS.md # 性能优化分析文档
+├── hooks/                               # 自定义 Hooks
+│   ├── useQuizNavigation.ts            # 题目导航逻辑
+│   ├── useQuizStatus.ts                # 答题状态管理
+│   ├── useQuizSubmission.ts            # 答题提交逻辑
+│   └── index.ts                        # Hooks 导出
+├── index.tsx                           # 标准答题页面
+├── streaming.tsx                       # 流式答题页面
+├── OptimizedStreamingQuizPage.tsx      # 优化版流式答题页面
+└── README.md                           # 模块文档
 ```
 
 ## 🎯 核心功能
@@ -60,6 +64,16 @@ quiz/
   - 生成进度显示
   - 部分内容答题
   - 状态切换处理
+
+### OptimizedStreamingQuizPage - 优化版流式答题页面
+- **文件**: `./OptimizedStreamingQuizPage.tsx`
+- **功能**: 高性能流式生成试卷的答题界面
+- **特性**:
+  - 虚拟化渲染优化
+  - React.memo 性能优化
+  - 事件处理函数缓存
+  - 状态计算优化
+  - 内存使用优化
 
 ### QuizHeader - 答题页头部
 - **文件**: `./components/QuizHeader.tsx`

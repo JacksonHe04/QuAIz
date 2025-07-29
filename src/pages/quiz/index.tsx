@@ -13,7 +13,7 @@ import {
   useQuizStatus
 } from './hooks';
 import { FloatingButton } from '@/components/FloatingButton';
-import { FloatingPanel } from '@/components/FloatingPanel';
+import { FloatingPanel } from '@/components/FloatingButton/FloatingPanel';
 import { OptimizedFloatingTimeRecorder } from '@/components/TimeRecorder';
 
 /**

@@ -6,21 +6,38 @@
 
 ```
 components/
-├── LogPanel/               # 日志面板组件
-│   ├── BottomControls.tsx # 底部控制栏
-│   ├── CopyButton.tsx     # 复制按钮
-│   ├── EmptyState.tsx     # 空状态显示
-│   ├── FloatingToggle.tsx # 浮动切换按钮
-│   ├── LogEntry.tsx       # 日志条目
-│   ├── LogPanel.tsx       # 主面板组件
-│   ├── PanelHeader.tsx    # 面板头部
-│   ├── StreamSession.tsx  # 流式会话
-│   ├── TabHeader.tsx      # 标签页头部
-│   ├── constants.ts       # 常量定义
-│   ├── hooks/             # 专用 Hooks
-│   ├── index.ts           # 模块导出
-│   └── utils.ts           # 工具函数
-├── Question/               # 题目组件
+├── FloatingButton/         # 浮动按钮组件模块
+│   ├── FloatingButton.tsx  # 通用浮动按钮
+│   ├── FloatingPanel/      # 浮动展示面板
+│   │   ├── FloatingPanel.tsx # 面板组件
+│   │   └── index.ts        # 面板导出
+│   ├── index.ts            # 模块导出
+│   └── README.md           # 模块文档
+├── LogPanel/               # 日志面板组件模块
+│   ├── LogPanelProvider.tsx # 全局日志面板提供者
+│   ├── components/         # 基础 UI 组件
+│   │   ├── BottomControls.tsx   # 底部控制栏
+│   │   ├── CopyButton.tsx       # 复制按钮
+│   │   ├── EmptyState.tsx       # 空状态显示
+│   │   ├── FloatingToggle.tsx   # 浮动切换按钮
+│   │   ├── LogEntry.tsx         # 日志条目
+│   │   ├── LogPanel.tsx         # 主面板组件
+│   │   ├── PanelHeader.tsx      # 面板头部
+│   │   ├── StreamSession.tsx    # 流式会话
+│   │   └── TabHeader.tsx        # 标签页头部
+│   ├── optimized/          # 性能优化组件
+│   │   ├── OptimizedLogEntry.tsx    # 优化日志条目
+│   │   ├── OptimizedLogPanel.tsx    # 优化日志面板
+│   │   └── VirtualizedLogList.tsx   # 虚拟化列表
+│   ├── hooks/              # 自定义 Hooks
+│   │   └── useAutoScroll.ts # 自动滚动逻辑
+│   ├── utils/              # 工具函数和常量
+│   │   ├── constants.ts    # 常量定义
+│   │   └── utils.ts        # 工具函数
+│   ├── docs/               # 文档
+│   ├── index.ts            # 模块导出
+│   └── README.md           # 模块文档
+├── Question/               # 题目组件模块
 │   ├── QuestionRenderer.tsx        # 题目渲染器
 │   ├── StreamingQuestionRenderer.tsx # 流式题目渲染器
 │   └── questions/          # 各类题型组件
@@ -31,22 +48,39 @@ components/
 │       ├── ShortAnswerQuestion.tsx  # 简答题
 │       ├── SingleChoiceQuestion.tsx # 单选题
 │       └── index.ts        # 题型组件导出
+├── TimeRecorder/           # 时间记录组件模块
+│   ├── TimeRecorder.tsx            # 基础时间记录组件
+│   ├── FloatingTimeRecorder.tsx    # 浮动时间记录组件
+│   ├── OptimizedFloatingTimeRecorder.tsx # 优化版浮动组件
+│   ├── index.ts            # 模块导出
+│   └── README.md           # 模块文档
 └── LogPanelProvider.tsx    # 日志面板提供者
 ```
 
 ## 🎯 核心组件
 
-### 1. LogPanel 日志面板
+### 1. FloatingButton 浮动按钮
+- **路径**: `./FloatingButton/`
+- **功能**: 通用浮动交互组件系统
+- **特性**:
+  - 通用浮动按钮组件
+  - 浮动展示面板组件
+  - 响应式设计（桌面/移动端适配）
+  - 多种形状和位置支持
+  - 完整的类型定义
+
+### 2. LogPanel 日志面板
 - **路径**: `./LogPanel/`
 - **功能**: 全局日志记录和流式回复显示
 - **特性**:
+  - 高性能虚拟化渲染
   - 侧边栏弹出式设计
   - 双标签页切换（系统日志 / 流式回复）
-  - 自动滚动和手动控制
+  - 智能自动滚动
   - 内容复制和清空功能
   - 响应式布局适配
 
-### 2. Question 题目组件
+### 3. Question 题目组件
 - **路径**: `./Question/`
 - **功能**: 题目渲染和交互处理
 - **特性**:
@@ -55,6 +89,16 @@ components/
   - 答案状态管理
   - 正确答案显示
   - 禁用状态处理
+
+### 4. TimeRecorder 时间记录
+- **路径**: `./TimeRecorder/`
+- **功能**: 时间记录和性能监控组件
+- **特性**:
+  - 精确的时间记录
+  - 浮动时间记录器
+  - 独立状态管理
+  - 实时状态更新
+  - 性能优化版本
 
 ## 📊 LogPanel 组件详解
 

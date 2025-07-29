@@ -1,7 +1,22 @@
 # QuAIz - 基于大模型的智能试卷生成+刷题+批改
 
+[![Version](https://img.shields.io/badge/version-v2.0.0-blue.svg)](https://github.com/JacksonHe04/QuAIz)
+[![React](https://img.shields.io/badge/React-19-61dafb.svg)](https://reactjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178c6.svg)](https://www.typescriptlang.org/)
+[![Vite](https://img.shields.io/badge/Vite-7-646cff.svg)](https://vitejs.dev/)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+
 > Quiz You by AI Zipply - 基于AI的智能试卷生成与批改系统
+
 在线链接：[https://quaiz-ai.vercel.app](https://quaiz-ai.vercel.app)
+
+## 🆕 最新更新 (v2.0.0)
+
+- ⚡ **性能大幅提升**: 使用 react-window 实现虚拟化渲染，支持 1000+ 条日志无卡顿
+- ⏱️ **智能时间记录**: 新增浮动时间记录器，精确追踪答题时长和统计信息
+- 🎨 **组件重构优化**: LogPanel 组件模块化重构，提升代码可维护性
+- 🔧 **开发体验提升**: 统一 LLM 配置管理，优化日志记录和错误处理
+- 📊 **性能监控**: 内置性能监控 Hook，实时跟踪渲染指标
 
 ## 📖 项目简介
 
@@ -14,17 +29,31 @@ QuAIz是一个现代化的AI驱动的在线出题系统，支持多种题型的�
 - **个性化配置**：自定义学科主题、题目数量、难度要求
 - **流式生成**：实时显示AI生成过程，提升用户体验
 - **智能提示词**：优化的prompt模板确保高质量题目生成
+- **预设管理**：支持保存和加载常用配置方案，提高生成效率
 
 ### 📝 在线答题系统
 - **响应式设计**：支持桌面端和移动端答题
 - **题目导航**：快速跳转到任意题目，实时显示答题进度
 - **自动保存**：答案实时保存，防止数据丢失
-- **多样化组件**：针对不同题型提供专门的答题界面
+- **多样化组件**：针对不同题型提供专门的答题组件
+- **虚拟化渲染**：支持大量题目的高性能渲染，无卡顿体验
 
 ### 🎯 AI智能批改
 - **自动评分**：AI根据标准答案和评分规则自动打分
 - **详细反馈**：每道题提供具体的批改意见和改进建议
 - **综合评价**：生成整体学习报告和建议
+
+### ⏱️ 智能时间记录
+- **精确计时**：自动记录题目生成时间和各题用时
+- **浮动面板**：非侵入式的时间记录界面
+- **性能优化**：防抖处理，减少不必要的状态更新
+
+### 📊 实时日志系统
+- **虚拟化日志**：支持1000+条日志无卡顿显示
+- **多会话管理**：同时管理多个日志会话
+- **智能过滤**：按类型、时间、关键词过滤日志
+- **流式展示**：实时显示AI生成和批改过程
+- **日志导出**：支持导出日志数据用于分析
 
 ## 🛠️ 技术栈
 
@@ -34,6 +63,14 @@ QuAIz是一个现代化的AI驱动的在线出题系统，支持多种题型的�
 - **Vite 7** - 极速的前端构建工具
 - **TailwindCSS 4** - 实用优先的CSS框架，支持最新语法
 - **Zustand 5** - 轻量级状态管理库
+- **React Window** - 虚拟化滚动组件，支持大量数据渲染
+- **Lucide React** - 现代化图标库
+
+### 性能优化
+- **虚拟化渲染** - 支持大量日志和题目的高性能显示
+- **React.memo** - 组件记忆化，减少不必要重渲染
+- **useMemo/useCallback** - Hook 优化，提升渲染性能
+- **防抖处理** - 优化频繁状态更新，降低性能开销
 
 ### 开发工具
 - **ESLint 9** - 代码质量检查和规范
@@ -48,22 +85,35 @@ QuAIz/
 │   └── quaiz-logo.svg        # 项目Logo
 ├── src/
 │   ├── components/            # 可复用组件模块 📋
+│   │   ├── FloatingButton/   # 浮动按钮组件系统
+│   │   │   ├── index.tsx     # 浮动按钮主组件
+│   │   │   ├── FloatingPanel.tsx     # 浮动面板组件
+│   │   │   └── README.md     # 浮动按钮模块文档
 │   │   ├── LogPanel/         # 日志面板组件系统
 │   │   │   ├── index.tsx     # 主日志面板组件
 │   │   │   ├── components/   # 日志子组件
-│   │   │   │   ├── LogEntry.tsx      # 日志条目组件
-│   │   │   │   ├── StreamSession.tsx # 流式会话组件
-│   │   │   │   ├── TabHeader.tsx     # 标签头组件
-│   │   │   │   ├── PanelHeader.tsx   # 面板头组件
-│   │   │   │   ├── LogFilter.tsx     # 日志过滤器
-│   │   │   │   ├── LogSearch.tsx     # 日志搜索
-│   │   │   │   └── ExportButton.tsx  # 导出按钮
+│   │   │   │   ├── LogEntry.tsx              # 日志条目组件
+│   │   │   │   ├── OptimizedLogEntry.tsx     # 优化版日志条目
+│   │   │   │   ├── VirtualizedLogList.tsx    # 虚拟化日志列表
+│   │   │   │   ├── StreamSession.tsx         # 流式会话组件
+│   │   │   │   ├── TabHeader.tsx             # 标签头组件
+│   │   │   │   ├── PanelHeader.tsx           # 面板头组件
+│   │   │   │   ├── FloatingToggle.tsx        # 浮动切换按钮
+│   │   │   │   ├── BottomControls.tsx        # 底部控制栏
+│   │   │   │   ├── LogFilter.tsx             # 日志过滤器
+│   │   │   │   ├── LogSearch.tsx             # 日志搜索
+│   │   │   │   └── ExportButton.tsx          # 导出按钮
 │   │   │   ├── hooks/        # 日志面板hooks
-│   │   │   │   ├── useLogPanel.ts    # 日志面板状态管理
-│   │   │   │   └── useLogFilter.ts   # 日志过滤逻辑
+│   │   │   │   ├── useLogPanel.ts            # 日志面板状态管理
+│   │   │   │   ├── useLogFilter.ts           # 日志过滤逻辑
+│   │   │   │   └── useAutoScroll.ts          # 自动滚动逻辑
 │   │   │   ├── utils/        # 日志工具函数
-│   │   │   │   ├── logFormatter.ts   # 日志格式化
-│   │   │   │   └── logExporter.ts    # 日志导出
+│   │   │   │   ├── constants.ts              # 日志面板常量
+│   │   │   │   ├── utils.ts                  # 通用工具函数
+│   │   │   │   ├── logFormatter.ts           # 日志格式化
+│   │   │   │   └── logExporter.ts            # 日志导出
+│   │   │   ├── docs/         # 日志面板文档
+│   │   │   │   └── PERFORMANCE_OPTIMIZATION.md # 性能优化文档
 │   │   │   └── README.md     # 日志面板模块文档
 │   │   ├── Question/         # 题目组件系统
 │   │   │   ├── index.tsx     # 题目组件入口
@@ -83,6 +133,10 @@ QuAIz/
 │   │   │   │   ├── questionUtils.ts          # 题目处理工具
 │   │   │   │   └── answerUtils.ts            # 答案处理工具
 │   │   │   └── README.md     # 题目组件模块文档
+│   │   ├── TimeRecorder/     # 时间记录组件系统
+│   │   │   ├── index.tsx     # 时间记录主组件
+│   │   │   ├── OptimizedTimeRecorder.tsx     # 优化版时间记录器
+│   │   │   └── README.md     # 时间记录模块文档
 │   │   ├── LogPanelProvider.tsx  # 日志面板上下文提供者
 │   │   └── README.md         # 组件模块总体文档
 │   ├── pages/                 # 页面组件模块 📄
@@ -101,7 +155,8 @@ QuAIz/
 │   │   │   └── README.md     # 生成页面模块文档
 │   │   ├── quiz/             # 答题页面模块
 │   │   │   ├── index.tsx     # 答题页面主组件
-│   │   │   ├── StreamingQuizPage.tsx # 流式答题页面
+│   │   │   ├── streaming.tsx # 流式答题页面
+│   │   │   ├── OptimizedStreamingQuizPage.tsx # 优化版流式答题页面
 │   │   │   ├── components/   # 答题页面子组件
 │   │   │   │   ├── QuizHeader.tsx            # 答题页面头部
 │   │   │   │   ├── QuizNavigation.tsx        # 题目导航组件
@@ -110,6 +165,8 @@ QuAIz/
 │   │   │   │   ├── useQuizNavigation.ts      # 题目导航逻辑
 │   │   │   │   ├── useQuizStatus.ts          # 答题状态管理
 │   │   │   │   └── useQuizSubmission.ts      # 提交逻辑
+│   │   │   ├── docs/         # 答题页面文档
+│   │   │   │   └── PERFORMANCE_OPTIMIZATION_ANALYSIS.md # 性能优化分析
 │   │   │   └── README.md     # 答题页面模块文档
 │   │   ├── result/           # 结果页面模块
 │   │   │   ├── index.tsx     # 结果页面主组件
@@ -126,16 +183,20 @@ QuAIz/
 │   │   └── README.md         # 页面模块总体文档
 │   ├── stores/               # 状态管理模块 🗃️
 │   │   ├── useAppStore.ts    # 主应用状态管理
-│   │   ├── actions/          # 状态操作模块
-│   │   │   ├── answeringActions.ts   # 答题相关操作
-│   │   │   └── gradingActions.ts     # 批改相关操作
+│   │   ├── useLogStore.ts    # 日志状态管理
+│   │   ├── timeRecorderStore.ts      # 时间记录状态管理
+│   │   ├── answeringActions.ts       # 答题相关操作
+│   │   ├── gradingActions.ts         # 批改相关操作
+│   │   ├── generationActions.ts      # 生成相关操作
 │   │   ├── generation/       # 题目生成状态管理
+│   │   │   ├── index.ts              # 生成模块入口
 │   │   │   ├── stateManager.ts       # 生成状态管理器
 │   │   │   ├── actions.ts            # 生成操作集合
 │   │   │   ├── generators.ts         # 题目生成器
 │   │   │   ├── types.ts              # 生成相关类型
 │   │   │   └── README.md             # 生成状态模块文档
 │   │   ├── logStore/         # 日志状态管理
+│   │   │   ├── index.ts              # 日志模块入口
 │   │   │   ├── logStore.ts           # 日志存储管理
 │   │   │   ├── actions.ts            # 日志操作集合
 │   │   │   ├── sessionManager.ts     # 会话管理器
@@ -156,14 +217,21 @@ QuAIz/
 │   │   └── app.ts            # 应用配置文件
 │   ├── router/               # 路由管理
 │   │   └── AppRouter.tsx     # 应用路由组件
+│   ├── hooks/                # 全局自定义 Hooks
+│   │   └── useOptimizedStreaming.ts  # 优化流式渲染 Hook
 │   ├── utils/                # 工具函数
-│   │   └── presetStorage.ts  # 预设存储工具
+│   │   ├── presetStorage.ts  # 预设存储工具
+│   │   └── timeUtils.ts      # 时间处理工具
+│   ├── test/                 # 测试文件
+│   │   └── timeRecorderTest.ts       # 时间记录器测试
 │   ├── styles/               # 样式文件
 │   │   └── index.css         # 全局样式
 │   ├── App.tsx               # 根组件
 │   ├── main.tsx              # 应用入口
 │   └── vite-env.d.ts         # Vite类型声明
 ├── docs/                     # 项目文档
+│   ├── REFACTOR_REPORT.md    # 重构报告文档
+│   ├── images/               # 文档图片资源
 │   ├── 项目描述.md           # 项目描述文档
 │   └── 数据结构设计.md       # 数据结构设计文档
 ├── .env.example              # 环境变量示例
@@ -243,7 +311,9 @@ pnpm check
 - **GenerationState**: 管理试卷生成流程，支持进度追踪和错误处理
 - **AnsweringState**: 管理答题进度、当前题目索引和提交状态
 - **GradingState**: 管理批改过程、结果展示和评分统计
-- **LogStore**: 管理系统日志和调试信息
+- **LogStore**: 管理系统日志和调试信息，支持多会话管理
+- **TimeRecorderStore**: 管理时间记录功能，精确追踪答题时长
+- **模块化Actions**: 将复杂业务逻辑封装为可复用的操作函数
 
 ### 智能路由系统
 
@@ -257,8 +327,10 @@ pnpm check
 项目实现了创新的流式渲染技术，提供极致的用户体验：
 - **实时解析**：动态解析AI输出的JSON片段
 - **增量渲染**：已完成的题目立即显示，无需等待
+- **虚拟化滚动**：使用react-window实现大量数据的高性能渲染
 - **进度反馈**：实时显示生成和批改进度
 - **错误恢复**：支持网络中断后的状态恢复
+- **性能监控**：内置性能监控Hook，实时跟踪渲染指标
 
 ### 响应式设计
 
@@ -455,12 +527,24 @@ export interface QuestionPreset {
 
 基于 [`./src/components/LogPanel/`](./src/components/LogPanel/) 和 [`./src/stores/logStore/`](./src/stores/logStore/) 模块实现：
 
+- **虚拟化日志展示**：使用react-window支持1000+条日志无卡顿显示
 - **实时日志收集**：自动收集系统运行日志和用户操作记录
 - **多会话管理**：支持同时管理多个日志会话
 - **流式日志展示**：实时显示 AI 生成和批改过程
-- **日志过滤搜索**：支持按类型、时间、关键词过滤日志
+- **智能过滤搜索**：支持按类型、时间、关键词过滤日志
+- **性能优化**：React.memo和useMemo减少不必要重渲染
 - **日志导出**：支持导出日志数据用于分析和调试
 - **可视化界面**：美观的日志面板和交互体验
+
+### ⏱️ 智能时间记录系统
+
+基于 [`./src/components/TimeRecorder/`](./src/components/TimeRecorder/) 和 [`./src/stores/timeRecorderStore.ts`](./src/stores/timeRecorderStore.ts) 模块实现：
+
+- **精确时间追踪**：自动记录题目生成开始、暂停、结束时间
+- **浮动面板设计**：非侵入式界面，不影响答题体验
+- **性能优化**：防抖处理和状态更新阈值检查
+- **状态可视化**：直观显示当前计时状态和统计信息
+- **独立状态管理**：与主应用状态解耦，提高性能
 
 ### 🗃️ 状态管理架构
 
@@ -482,7 +566,9 @@ export interface QuestionPreset {
 - **类型安全**：完整的 TypeScript 类型定义和 Props 约束
 - **响应式设计**：所有组件支持多设备适配
 - **主题一致性**：统一的设计语言和视觉风格
-- **性能优化**：合理的组件拆分和渲染优化
+- **性能优化**：React.memo、useMemo、useCallback 全面优化
+- **虚拟化支持**：大数据量组件采用虚拟化渲染技术
+- **浮动组件系统**：FloatingButton 和 FloatingPanel 通用浮动组件
 
 ### 🔧 开发者体验
 
@@ -552,6 +638,13 @@ A: 可以在 `src/types/index.ts` 中添加新的题型定义，然后在 `src/c
 - [**组件模块总览**](./src/components/README.md) - 组件架构和设计原则
 - [**题目组件系统**](./src/components/Question/README.md) - 多题型组件实现
 - [**日志面板组件**](./src/components/LogPanel/README.md) - 实时日志展示系统
+- [**时间记录组件**](./src/components/TimeRecorder/README.md) - 智能时间记录系统
+- [**浮动按钮组件**](./src/components/FloatingButton/README.md) - 浮动组件系统
+
+### 📊 项目文档
+- [**重构报告**](./docs/REFACTOR_REPORT.md) - 项目重构详细报告
+- [**性能优化分析**](./src/pages/quiz/docs/PERFORMANCE_OPTIMIZATION_ANALYSIS.md) - 性能优化详细分析
+- [**日志面板性能优化**](./src/components/LogPanel/docs/PERFORMANCE_OPTIMIZATION.md) - 日志面板性能优化文档
 
 这些文档包含了详细的功能说明、API 接口、使用示例和最佳实践，是深入了解项目的最佳资源。
 
@@ -583,4 +676,8 @@ A: 可以在 `src/types/index.ts` 中添加新的题型定义，然后在 `src/c
   <p>如果这个项目对你有帮助，请给它一个 ⭐️</p>
   <p>Made with ❤️ by JacksonHe04</p>
   <p><strong>QuAIz</strong> - 让AI为教育赋能，让学习更加智能高效！</p>
+  <br>
+  <p>📅 <strong>文档最后更新</strong>: 2025年1月29日</p>
+  <p>🔄 <strong>最新版本</strong>: v2.0.0 (性能优化版)</p>
+  <p>👨‍💻 <strong>维护者</strong>: JacksonHe04</p>
 </div>
