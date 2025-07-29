@@ -34,7 +34,9 @@ export class StreamProcessor {
   /**
    * 处理流式响应
    */
-  async *processStream(response: Response): AsyncGenerator<string, void, unknown> {
+  async *processStream(
+    response: Response
+  ): AsyncGenerator<string, void, unknown> {
     const reader = response.body?.getReader();
     if (!reader) {
       this.errorHandler.handleStreamInitError();
@@ -42,19 +44,19 @@ export class StreamProcessor {
 
     const requestId = this.requestLogger.getRequestId();
     logger.info(`开始接收流式数据 [${requestId}]`, 'llm');
-    
+
     const decoder = new TextDecoder();
     let buffer = '';
 
     try {
       while (true) {
         const { done, value } = await reader.read();
-        
+
         if (done) {
           this.logStreamCompletion(requestId);
           break;
         }
-        
+
         buffer += decoder.decode(value, { stream: true });
         const lines = buffer.split('\n');
         buffer = lines.pop() || '';
@@ -79,28 +81,29 @@ export class StreamProcessor {
     if (!trimmedLine || !trimmedLine.startsWith('data: ')) {
       return null;
     }
-    
+
     const dataStr = trimmedLine.slice(6);
     if (dataStr === '[DONE]') {
       logger.info(`收到流式结束标记 [${requestId}]`, 'llm');
       return null;
     }
-    
+
     try {
       const data: LLMStreamResponse = JSON.parse(dataStr);
       const content = data.choices?.[0]?.delta?.content;
-      
+
       if (content) {
         this.updateStats(content, requestId);
         return content;
       }
     } catch (parseError) {
       logger.warning(`解析流式响应失败 [${requestId}]`, 'llm', {
-        error: parseError instanceof Error ? parseError.message : String(parseError),
-        dataStr: dataStr.substring(0, 100)
+        error:
+          parseError instanceof Error ? parseError.message : String(parseError),
+        dataStr: dataStr.substring(0, 100),
       });
     }
-    
+
     return null;
   }
 
@@ -110,11 +113,11 @@ export class StreamProcessor {
   private updateStats(content: string, requestId: string): void {
     this.totalChunks++;
     this.totalLength += content.length;
-    
+
     if (this.totalChunks % 10 === 0) {
       logger.info(`流式数据进度 [${requestId}]`, 'llm', {
         chunks: this.totalChunks,
-        length: this.totalLength
+        length: this.totalLength,
       });
     }
   }
@@ -126,9 +129,12 @@ export class StreamProcessor {
     const stats: StreamStats = {
       totalChunks: this.totalChunks,
       totalLength: this.totalLength,
-      avgChunkSize: this.totalChunks > 0 ? Math.round(this.totalLength / this.totalChunks) : 0
+      avgChunkSize:
+        this.totalChunks > 0
+          ? Math.round(this.totalLength / this.totalChunks)
+          : 0,
     };
-    
+
     logger.success(`流式请求完成 [${requestId}]`, 'llm', stats);
   }
 
@@ -139,7 +145,10 @@ export class StreamProcessor {
     return {
       totalChunks: this.totalChunks,
       totalLength: this.totalLength,
-      avgChunkSize: this.totalChunks > 0 ? Math.round(this.totalLength / this.totalChunks) : 0
+      avgChunkSize:
+        this.totalChunks > 0
+          ? Math.round(this.totalLength / this.totalChunks)
+          : 0,
     };
   }
 }

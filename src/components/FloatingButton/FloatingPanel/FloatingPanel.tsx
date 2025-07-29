@@ -50,7 +50,7 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({
   maxHeight = 'max-h-[calc(100vh-12rem)]',
   children,
   className = '',
-  showCloseButton = true
+  showCloseButton = true,
 }) => {
   if (!isVisible) {
     return null;
@@ -61,7 +61,7 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({
    */
   const getPositionClasses = () => {
     const baseClasses = `fixed ${top} z-40 ${width}`;
-    
+
     if (position === 'left') {
       return `${baseClasses} lg:left-4 left-2`;
     } else {
@@ -70,28 +70,28 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({
   };
 
   return (
-    <div className={`${getPositionClasses()} bg-white rounded-lg shadow-xl overflow-hidden ${className}`}>
+    <div
+      className={`${getPositionClasses()} bg-white rounded-lg shadow-xl overflow-hidden ${className}`}
+    >
       {/* 面板头部 */}
-      <div className="p-4 border-b border-gray-200 flex items-center justify-between">
-        <h3 className="font-medium text-gray-900 flex items-center gap-2">
-          {TitleIcon && <TitleIcon className="w-4 h-4" />}
+      <div className='p-4 border-b border-gray-200 flex items-center justify-between'>
+        <h3 className='font-medium text-gray-900 flex items-center gap-2'>
+          {TitleIcon && <TitleIcon className='w-4 h-4' />}
           {title}
         </h3>
         {showCloseButton && (
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
-            title="关闭"
+            className='text-gray-400 hover:text-gray-600 transition-colors'
+            title='关闭'
           >
-            <X className="w-5 h-5" />
+            <X className='w-5 h-5' />
           </button>
         )}
       </div>
-      
+
       {/* 面板内容 */}
-      <div className={`p-4 overflow-y-auto ${maxHeight}`}>
-        {children}
-      </div>
+      <div className={`p-4 overflow-y-auto ${maxHeight}`}>{children}</div>
     </div>
   );
 };

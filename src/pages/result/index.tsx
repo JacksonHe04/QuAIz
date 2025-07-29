@@ -8,7 +8,7 @@ import {
   QuestionResult,
   LearningAdvice,
   GradingLoading,
-  EmptyResultState
+  EmptyResultState,
 } from './components';
 
 /**
@@ -28,7 +28,7 @@ export const ResultPage: React.FC = () => {
     scoreColor,
     correctCount,
     partialCount,
-    wrongCount
+    wrongCount,
   } = useGradingStatus(result);
 
   // 处理打印结果
@@ -47,7 +47,7 @@ export const ResultPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className='min-h-screen bg-gray-50'>
       {/* 顶部成绩概览 */}
       <GradingHeader
         result={result}
@@ -56,12 +56,9 @@ export const ResultPage: React.FC = () => {
         scoreColor={scoreColor}
       />
 
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className='max-w-6xl mx-auto px-4 py-8'>
         {/* 操作按钮 */}
-        <GradingActions
-          onPrint={handlePrint}
-          onReset={resetApp}
-        />
+        <GradingActions onPrint={handlePrint} onReset={resetApp} />
 
         {/* 成绩统计 */}
         <GradingStats
@@ -72,11 +69,13 @@ export const ResultPage: React.FC = () => {
         />
 
         {/* 题目详细解析 */}
-        <div className="space-y-6">
+        <div className='space-y-6'>
           {quiz.questions.map((question, index) => {
-            const questionResult = result.results.find(r => r.questionId === question.id);
+            const questionResult = result.results.find(
+              r => r.questionId === question.id
+            );
             if (!questionResult) return null;
-            
+
             return (
               <QuestionResult
                 key={question.id}

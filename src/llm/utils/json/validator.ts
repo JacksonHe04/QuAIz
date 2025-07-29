@@ -18,20 +18,20 @@ export interface ValidationResult {
  * @returns 验证结果
  */
 export function validateRequiredFields(
-  obj: Record<string, unknown>, 
+  obj: Record<string, unknown>,
   requiredFields: string[]
 ): ValidationResult {
   const missingFields: string[] = [];
-  
+
   for (const field of requiredFields) {
     if (!(field in obj) || obj[field] === undefined || obj[field] === null) {
       missingFields.push(field);
     }
   }
-  
+
   return {
     isValid: missingFields.length === 0,
-    missingFields
+    missingFields,
   };
 }
 
@@ -53,22 +53,22 @@ export function isValidQuestion(obj: Record<string, unknown>): boolean {
  */
 export function validateQuestions(questions: unknown[]): ValidationResult {
   const missingFields: string[] = [];
-  
+
   for (let i = 0; i < questions.length; i++) {
     const question = questions[i];
     if (typeof question !== 'object' || question === null) {
       missingFields.push(`questions[${i}]: 不是有效对象`);
       continue;
     }
-    
+
     if (!isValidQuestion(question as Record<string, unknown>)) {
       missingFields.push(`questions[${i}]: 缺少必需字段`);
     }
   }
-  
+
   return {
     isValid: missingFields.length === 0,
-    missingFields
+    missingFields,
   };
 }
 
@@ -77,22 +77,24 @@ export function validateQuestions(questions: unknown[]): ValidationResult {
  * @param obj 待验证的试卷对象
  * @returns 验证结果
  */
-export function validateQuizStructure(obj: Record<string, unknown>): ValidationResult {
+export function validateQuizStructure(
+  obj: Record<string, unknown>
+): ValidationResult {
   const requiredFields = ['title', 'description', 'questions'];
   const baseValidation = validateRequiredFields(obj, requiredFields);
-  
+
   if (!baseValidation.isValid) {
     return baseValidation;
   }
-  
+
   // 验证questions字段是否为数组
   if (!Array.isArray(obj.questions)) {
     return {
       isValid: false,
-      missingFields: ['questions: 必须是数组']
+      missingFields: ['questions: 必须是数组'],
     };
   }
-  
+
   // 验证题目数组
   const questionsValidation = validateQuestions(obj.questions as unknown[]);
   return questionsValidation;

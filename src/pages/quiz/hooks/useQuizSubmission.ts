@@ -6,12 +6,8 @@ import type { Quiz } from '@/types';
  * 处理答案更新和试卷提交逻辑
  */
 export function useQuizSubmission() {
-  const { 
-    updateUserAnswer, 
-    submitQuiz, 
-    startGrading,
-    answering
-  } = useAppStore();
+  const { updateUserAnswer, submitQuiz, startGrading, answering } =
+    useAppStore();
 
   /**
    * 更新用户答案
@@ -63,6 +59,6 @@ export function useQuizSubmission() {
   return {
     handleAnswerChange,
     handleSubmitQuiz,
-    isSubmitted: answering.isSubmitted
+    isSubmitted: answering.isSubmitted,
   };
 }

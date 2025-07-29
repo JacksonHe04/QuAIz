@@ -18,7 +18,7 @@ function App() {
 
   return (
     <LogPanelProvider>
-      <div className="App">
+      <div className='App'>
         <AppRouter />
       </div>
     </LogPanelProvider>

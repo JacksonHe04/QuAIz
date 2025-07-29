@@ -9,7 +9,7 @@ export {
   fixIncompleteJSON,
   cleanLLMResponse,
   safeParseJSON,
-  type JSONExtractionResult
+  type JSONExtractionResult,
 } from './parser';
 
 // 从验证器模块导出
@@ -18,7 +18,7 @@ export {
   isValidQuestion,
   validateQuestions,
   validateQuizStructure,
-  type ValidationResult
+  type ValidationResult,
 } from './validator';
 
 // 从题目提取器模块导出
@@ -27,5 +27,5 @@ export {
   extractPartialText,
   getTotalQuestionCount,
   extractQuestionProgress,
-  type QuestionExtractionResult
+  type QuestionExtractionResult,
 } from './questionExtractor';

@@ -21,7 +21,7 @@ export class ErrorHandler {
    */
   async handleErrorResponse(response: Response): Promise<never> {
     let errorMessage = `API请求失败: ${response.status} ${response.statusText}`;
-    
+
     try {
       const errorData: LLMError = await response.json();
       if (errorData.error?.message) {
@@ -30,7 +30,7 @@ export class ErrorHandler {
     } catch {
       // 如果无法解析错误响应，使用默认错误消息
     }
-    
+
     this.logger.logApiError(response.status, response.statusText);
     throw new Error(errorMessage);
   }
@@ -66,8 +66,10 @@ export class ErrorHandler {
    * 处理通用错误
    */
   handleGenericError(error: unknown, defaultMessage: string): never {
-    this.logger.logError(error instanceof Error ? error.message : String(error));
-    
+    this.logger.logError(
+      error instanceof Error ? error.message : String(error)
+    );
+
     if (error instanceof Error) {
       throw error;
     }

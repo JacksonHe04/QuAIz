@@ -7,7 +7,7 @@ import {
   FillBlankQuestion,
   ShortAnswerQuestion,
   CodeOutputQuestion,
-  CodeWritingQuestion
+  CodeWritingQuestion,
 } from './questions';
 
 interface Props {
@@ -27,7 +27,7 @@ export const QuestionRenderer: React.FC<Props> = ({
   onAnswerChange,
   disabled = false,
   showCorrectAnswer = false,
-  questionNumber
+  questionNumber,
 }) => {
   const handleAnswerChange = (answer: unknown) => {
     onAnswerChange(question.id, answer);
@@ -44,7 +44,7 @@ export const QuestionRenderer: React.FC<Props> = ({
             showCorrectAnswer={showCorrectAnswer}
           />
         );
-        
+
       case QuestionType.MULTIPLE_CHOICE:
         return (
           <MultipleChoiceQuestion
@@ -54,7 +54,7 @@ export const QuestionRenderer: React.FC<Props> = ({
             showCorrectAnswer={showCorrectAnswer}
           />
         );
-        
+
       case QuestionType.FILL_BLANK:
         return (
           <FillBlankQuestion
@@ -64,7 +64,7 @@ export const QuestionRenderer: React.FC<Props> = ({
             showCorrectAnswer={showCorrectAnswer}
           />
         );
-        
+
       case QuestionType.SHORT_ANSWER:
         return (
           <ShortAnswerQuestion
@@ -74,7 +74,7 @@ export const QuestionRenderer: React.FC<Props> = ({
             showCorrectAnswer={showCorrectAnswer}
           />
         );
-        
+
       case QuestionType.CODE_OUTPUT:
         return (
           <CodeOutputQuestion
@@ -84,7 +84,7 @@ export const QuestionRenderer: React.FC<Props> = ({
             showCorrectAnswer={showCorrectAnswer}
           />
         );
-        
+
       case QuestionType.CODE_WRITING:
         return (
           <CodeWritingQuestion
@@ -94,29 +94,31 @@ export const QuestionRenderer: React.FC<Props> = ({
             showCorrectAnswer={showCorrectAnswer}
           />
         );
-        
+
       default:
         return (
-          <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-red-800">未知题目类型: {(question as { type: string }).type}</p>
+          <div className='p-4 bg-red-50 border border-red-200 rounded-lg'>
+            <p className='text-red-800'>
+              未知题目类型: {(question as { type: string }).type}
+            </p>
           </div>
         );
     }
   };
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+    <div className='bg-white rounded-lg border border-gray-200 p-6 shadow-sm'>
       {questionNumber && (
-        <div className="flex items-center gap-2 mb-4">
-          <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+        <div className='flex items-center gap-2 mb-4'>
+          <span className='bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium'>
             第 {questionNumber} 题
           </span>
-          <span className="text-gray-500 text-sm">
+          <span className='text-gray-500 text-sm'>
             {getQuestionTypeLabel(question.type)}
           </span>
         </div>
       )}
-      
+
       {renderQuestion()}
     </div>
   );
@@ -132,8 +134,8 @@ function getQuestionTypeLabel(type: QuestionType): string {
     [QuestionType.FILL_BLANK]: '填空题',
     [QuestionType.SHORT_ANSWER]: '简答题',
     [QuestionType.CODE_OUTPUT]: '代码输出题',
-    [QuestionType.CODE_WRITING]: '代码编写题'
+    [QuestionType.CODE_WRITING]: '代码编写题',
   };
-  
+
   return labels[type] || '未知题型';
 }

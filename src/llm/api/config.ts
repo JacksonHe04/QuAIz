@@ -17,11 +17,12 @@ export interface LLMConfig {
  */
 export const DEFAULT_LLM_CONFIG: LLMConfig = {
   apiKey: import.meta.env.VITE_LLM_API_KEY || '',
-  baseUrl: import.meta.env.VITE_LLM_BASE_URL || 'https://open.bigmodel.cn/api/paas/v4',
+  baseUrl:
+    import.meta.env.VITE_LLM_BASE_URL || 'https://open.bigmodel.cn/api/paas/v4',
   model: import.meta.env.VITE_LLM_MODEL || 'glm-4-flash-250414',
   maxTokens: Number(import.meta.env.VITE_LLM_MAX_TOKENS) || 4000,
   temperature: Number(import.meta.env.VITE_LLM_TEMPERATURE) || 0.7,
-  stream: true
+  stream: true,
 };
 
 /**
@@ -30,16 +31,16 @@ export const DEFAULT_LLM_CONFIG: LLMConfig = {
 export const LLM_PROVIDERS = {
   openai: {
     baseUrl: 'https://api.openai.com/v1',
-    models: ['gpt-3.5-turbo', 'gpt-4', 'gpt-4-turbo']
+    models: ['gpt-3.5-turbo', 'gpt-4', 'gpt-4-turbo'],
   },
   anthropic: {
     baseUrl: 'https://api.anthropic.com/v1',
-    models: ['claude-3-sonnet', 'claude-3-opus']
+    models: ['claude-3-sonnet', 'claude-3-opus'],
   },
   deepseek: {
     baseUrl: 'https://api.deepseek.com/v1',
-    models: ['deepseek-chat', 'deepseek-coder']
-  }
+    models: ['deepseek-chat', 'deepseek-coder'],
+  },
 } as const;
 
 /**

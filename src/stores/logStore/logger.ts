@@ -4,10 +4,26 @@ import type { LogEntry } from './types';
  * 日志记录器接口
  */
 interface Logger {
-  info: (message: string, category?: LogEntry['category'], details?: unknown) => void;
-  success: (message: string, category?: LogEntry['category'], details?: unknown) => void;
-  warning: (message: string, category?: LogEntry['category'], details?: unknown) => void;
-  error: (message: string, category?: LogEntry['category'], details?: unknown) => void;
+  info: (
+    message: string,
+    category?: LogEntry['category'],
+    details?: unknown
+  ) => void;
+  success: (
+    message: string,
+    category?: LogEntry['category'],
+    details?: unknown
+  ) => void;
+  warning: (
+    message: string,
+    category?: LogEntry['category'],
+    details?: unknown
+  ) => void;
+  error: (
+    message: string,
+    category?: LogEntry['category'],
+    details?: unknown
+  ) => void;
   llm: {
     info: (message: string, details?: unknown) => void;
     success: (message: string, details?: unknown) => void;
@@ -38,7 +54,11 @@ export const createLogger = (
   addLog: (entry: Omit<LogEntry, 'id' | 'timestamp'>) => void,
   streamActions: {
     startStreamSession: (requestId?: string, operation?: string) => string;
-    addStreamChunk: (sessionId: string, content: string, requestId?: string) => void;
+    addStreamChunk: (
+      sessionId: string,
+      content: string,
+      requestId?: string
+    ) => void;
     endStreamSession: (sessionId: string) => void;
     clearStreamSessions: () => void;
   }
@@ -47,28 +67,44 @@ export const createLogger = (
     /**
      * 记录信息日志
      */
-    info: (message: string, category: LogEntry['category'] = 'system', details?: unknown) => {
+    info: (
+      message: string,
+      category: LogEntry['category'] = 'system',
+      details?: unknown
+    ) => {
       addLog({ level: 'info', category, message, details });
     },
 
     /**
      * 记录成功日志
      */
-    success: (message: string, category: LogEntry['category'] = 'system', details?: unknown) => {
+    success: (
+      message: string,
+      category: LogEntry['category'] = 'system',
+      details?: unknown
+    ) => {
       addLog({ level: 'success', category, message, details });
     },
 
     /**
      * 记录警告日志
      */
-    warning: (message: string, category: LogEntry['category'] = 'system', details?: unknown) => {
+    warning: (
+      message: string,
+      category: LogEntry['category'] = 'system',
+      details?: unknown
+    ) => {
       addLog({ level: 'warning', category, message, details });
     },
 
     /**
      * 记录错误日志
      */
-    error: (message: string, category: LogEntry['category'] = 'system', details?: unknown) => {
+    error: (
+      message: string,
+      category: LogEntry['category'] = 'system',
+      details?: unknown
+    ) => {
       addLog({ level: 'error', category, message, details });
     },
 
@@ -76,20 +112,28 @@ export const createLogger = (
      * 记录LLM相关日志
      */
     llm: {
-      info: (message: string, details?: unknown) => logger.info(message, 'llm', details),
-      success: (message: string, details?: unknown) => logger.success(message, 'llm', details),
-      warning: (message: string, details?: unknown) => logger.warning(message, 'llm', details),
-      error: (message: string, details?: unknown) => logger.error(message, 'llm', details)
+      info: (message: string, details?: unknown) =>
+        logger.info(message, 'llm', details),
+      success: (message: string, details?: unknown) =>
+        logger.success(message, 'llm', details),
+      warning: (message: string, details?: unknown) =>
+        logger.warning(message, 'llm', details),
+      error: (message: string, details?: unknown) =>
+        logger.error(message, 'llm', details),
     },
 
     /**
      * 记录API相关日志
      */
     api: {
-      info: (message: string, details?: unknown) => logger.info(message, 'api', details),
-      success: (message: string, details?: unknown) => logger.success(message, 'api', details),
-      warning: (message: string, details?: unknown) => logger.warning(message, 'api', details),
-      error: (message: string, details?: unknown) => logger.error(message, 'api', details)
+      info: (message: string, details?: unknown) =>
+        logger.info(message, 'api', details),
+      success: (message: string, details?: unknown) =>
+        logger.success(message, 'api', details),
+      warning: (message: string, details?: unknown) =>
+        logger.warning(message, 'api', details),
+      error: (message: string, details?: unknown) =>
+        logger.error(message, 'api', details),
     },
 
     /**
@@ -129,8 +173,8 @@ export const createLogger = (
        */
       clear: () => {
         streamActions.clearStreamSessions();
-      }
-    }
+      },
+    },
   };
 
   return logger;

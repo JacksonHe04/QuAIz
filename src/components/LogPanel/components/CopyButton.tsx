@@ -27,36 +27,33 @@ export const CopyButton: React.FC<CopyButtonProps> = ({
   title = '复制',
   successTitle = '已复制!',
   className = '',
-  size = 'sm'
+  size = 'sm',
 }) => {
   const [copySuccess, setCopySuccess] = React.useState(false);
-  
+
   /**
    * 处理复制操作
    */
   const handleCopy = async () => {
-    await copyToClipboard(
-      text,
-      () => {
-        setCopySuccess(true);
-        setTimeout(() => setCopySuccess(false), COPY_SUCCESS_DURATION);
-      }
-    );
+    await copyToClipboard(text, () => {
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), COPY_SUCCESS_DURATION);
+    });
   };
-  
+
   const sizeClasses = {
     sm: 'p-1 text-xs',
-    md: 'p-2 text-sm'
+    md: 'p-2 text-sm',
   };
-  
+
   return (
     <button
       onClick={handleCopy}
       className={`
         ${sizeClasses[size]} rounded transition-colors
         ${
-          copySuccess 
-            ? 'bg-green-200 text-green-700' 
+          copySuccess
+            ? 'bg-green-200 text-green-700'
             : 'bg-gray-200 hover:bg-gray-300'
         }
         ${className}

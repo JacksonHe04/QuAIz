@@ -40,11 +40,11 @@ export const createAnsweringActions = (
       ...state,
       answering: {
         ...state.answering,
-        currentQuestionIndex: index
-      }
+        currentQuestionIndex: index,
+      },
     }));
   },
-  
+
   /**
    * 设置当前题目（兼容旧API）
    * @param index 题目索引
@@ -55,33 +55,36 @@ export const createAnsweringActions = (
       ...state,
       answering: {
         ...state.answering,
-        currentQuestionIndex: index
-      }
+        currentQuestionIndex: index,
+      },
     }));
   },
-  
+
   /**
    * 下一题
    */
   nextQuestion: () => {
     const state = get();
     const currentQuiz = state.generation.currentQuiz;
-    
+
     if (!currentQuiz) return;
-    
+
     const currentIndex = state.answering.currentQuestionIndex;
-    const nextIndex = Math.min(currentIndex + 1, currentQuiz.questions.length - 1);
-    
+    const nextIndex = Math.min(
+      currentIndex + 1,
+      currentQuiz.questions.length - 1
+    );
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     set((state: any) => ({
       ...state,
       answering: {
         ...state.answering,
-        currentQuestionIndex: nextIndex
-      }
+        currentQuestionIndex: nextIndex,
+      },
     }));
   },
-  
+
   /**
    * 上一题
    */
@@ -89,17 +92,17 @@ export const createAnsweringActions = (
     const state = get();
     const currentIndex = state.answering.currentQuestionIndex;
     const prevIndex = Math.max(currentIndex - 1, 0);
-    
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     set((state: any) => ({
       ...state,
       answering: {
         ...state.answering,
-        currentQuestionIndex: prevIndex
-      }
+        currentQuestionIndex: prevIndex,
+      },
     }));
   },
-  
+
   /**
    * 更新用户答案
    * @param questionId 题目ID
@@ -110,7 +113,7 @@ export const createAnsweringActions = (
     set((state: any) => {
       const currentQuiz = state.generation.currentQuiz;
       if (!currentQuiz) return state;
-      
+
       const updatedQuestions = currentQuiz.questions.map((q: Question) => {
         if (q.id === questionId) {
           // 使用类型断言来处理复杂的联合类型
@@ -118,20 +121,20 @@ export const createAnsweringActions = (
         }
         return q;
       });
-      
+
       return {
         ...state,
         generation: {
           ...state.generation,
           currentQuiz: {
             ...currentQuiz,
-            questions: updatedQuestions
-          }
-        }
+            questions: updatedQuestions,
+          },
+        },
       };
     });
   },
-  
+
   /**
    * 提交答案
    */
@@ -141,11 +144,11 @@ export const createAnsweringActions = (
       ...state,
       answering: {
         ...state.answering,
-        isSubmitted: true
-      }
+        isSubmitted: true,
+      },
     }));
   },
-  
+
   /**
    * 提交试卷（兼容旧API）
    */
@@ -155,11 +158,11 @@ export const createAnsweringActions = (
       ...state,
       answering: {
         ...state.answering,
-        isSubmitted: true
-      }
+        isSubmitted: true,
+      },
     }));
   },
-  
+
   /**
    * 重置答题状态
    */
@@ -169,10 +172,10 @@ export const createAnsweringActions = (
       ...state,
       answering: {
         currentQuestionIndex: 0,
-        isSubmitted: false
-      }
+        isSubmitted: false,
+      },
     }));
-  }
+  },
 });
 
 /**
@@ -188,7 +191,7 @@ export const answeringUtils = {
       return question.userAnswer !== undefined && question.userAnswer !== null;
     });
   },
-  
+
   /**
    * 获取已回答题目数量
    * @param quiz 试卷
@@ -198,7 +201,7 @@ export const answeringUtils = {
       return question.userAnswer !== undefined && question.userAnswer !== null;
     }).length;
   },
-  
+
   /**
    * 获取答题进度百分比
    * @param quiz 试卷
@@ -208,12 +211,12 @@ export const answeringUtils = {
     const totalCount = quiz.questions.length;
     return totalCount > 0 ? Math.round((answeredCount / totalCount) * 100) : 0;
   },
-  
+
   /**
    * 检查当前题目是否已回答
    * @param question 题目
    */
   isQuestionAnswered: (question: Question): boolean => {
     return question.userAnswer !== undefined && question.userAnswer !== null;
-  }
+  },
 };

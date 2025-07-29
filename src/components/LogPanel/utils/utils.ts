@@ -1,10 +1,10 @@
 import React from 'react';
 import type { LogEntry } from '@/stores/useLogStore';
-import { 
-  LOG_LEVEL_STYLES, 
-  LOG_LEVEL_BADGE_STYLES, 
+import {
+  LOG_LEVEL_STYLES,
+  LOG_LEVEL_BADGE_STYLES,
   CATEGORY_ICONS,
-  COPY_SUCCESS_DURATION 
+  COPY_SUCCESS_DURATION,
 } from './constants';
 
 /**
@@ -44,12 +44,16 @@ export const getCategoryIcon = (category: LogEntry['category']) => {
  */
 export const formatTimestamp = (timestamp: number) => {
   const date = new Date(timestamp);
-  return date.toLocaleTimeString('zh-CN', {
-    hour12: false,
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit'
-  }) + '.' + String(date.getMilliseconds()).padStart(3, '0');
+  return (
+    date.toLocaleTimeString('zh-CN', {
+      hour12: false,
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    }) +
+    '.' +
+    String(date.getMilliseconds()).padStart(3, '0')
+  );
 };
 
 /**
@@ -107,17 +111,14 @@ export const copyToClipboard = async (
  */
 export const useCopyFunction = (getText: () => string) => {
   const [copySuccess, setCopySuccess] = React.useState(false);
-  
+
   const handleCopy = async () => {
-    await copyToClipboard(
-      getText(),
-      () => {
-        setCopySuccess(true);
-        setTimeout(() => setCopySuccess(false), COPY_SUCCESS_DURATION);
-      }
-    );
+    await copyToClipboard(getText(), () => {
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), COPY_SUCCESS_DURATION);
+    });
   };
-  
+
   return { copySuccess, handleCopy };
 };
 
@@ -127,7 +128,10 @@ export const useCopyFunction = (getText: () => string) => {
  * @param threshold 阈值
  * @returns 是否在底部
  */
-export const isScrolledToBottom = (element: HTMLElement, threshold: number = 10): boolean => {
+export const isScrolledToBottom = (
+  element: HTMLElement,
+  threshold: number = 10
+): boolean => {
   const { scrollTop, scrollHeight, clientHeight } = element;
   return scrollTop + clientHeight >= scrollHeight - threshold;
 };

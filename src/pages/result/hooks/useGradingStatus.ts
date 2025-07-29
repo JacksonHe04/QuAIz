@@ -19,7 +19,7 @@ export function useGradingStatus(result: GradingResult | null) {
    */
   const scoreLevel = useMemo(() => {
     if (!result) return '';
-    
+
     if (scorePercentage >= 90) return '优秀';
     if (scorePercentage >= 80) return '良好';
     if (scorePercentage >= 60) return '及格';
@@ -31,7 +31,7 @@ export function useGradingStatus(result: GradingResult | null) {
    */
   const scoreColor = useMemo(() => {
     if (!result) return '';
-    
+
     if (scorePercentage >= 90) return 'text-green-600';
     if (scorePercentage >= 80) return 'text-blue-600';
     if (scorePercentage >= 60) return 'text-yellow-600';
@@ -68,6 +68,6 @@ export function useGradingStatus(result: GradingResult | null) {
     scoreColor,
     correctCount,
     partialCount,
-    wrongCount
+    wrongCount,
   };
 }

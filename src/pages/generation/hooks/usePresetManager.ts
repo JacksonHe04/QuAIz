@@ -1,6 +1,11 @@
 import { useState, useEffect } from 'react';
 import type { GenerationRequest, QuestionPreset } from '@/types';
-import { getPresets, savePreset, deletePreset, generatePresetName } from '@/utils/presetStorage';
+import {
+  getPresets,
+  savePreset,
+  deletePreset,
+  generatePresetName,
+} from '@/utils/presetStorage';
 
 /**
  * 预设管理钩子
@@ -35,7 +40,7 @@ export function usePresetManager(
     setFormData({
       subject: preset.subject || '',
       description: preset.description_content || '',
-      questionConfigs: [...preset.questionConfigs]
+      questionConfigs: [...preset.questionConfigs],
     });
     setShowPresetModal(false);
   };
@@ -48,7 +53,7 @@ export function usePresetManager(
       alert('请先配置题型后再保存预设');
       return;
     }
-    
+
     const suggestedName = generatePresetName(formData.questionConfigs);
     setPresetName(suggestedName);
     setPresetDescription('');
@@ -63,16 +68,16 @@ export function usePresetManager(
       alert('请输入预设名称');
       return;
     }
-    
+
     try {
       savePreset({
         name: presetName.trim(),
         description: presetDescription.trim(),
         subject: formData.subject,
         description_content: formData.description,
-        questionConfigs: formData.questionConfigs
+        questionConfigs: formData.questionConfigs,
       });
-      
+
       loadPresets();
       setShowSaveModal(false);
       setPresetName('');
@@ -118,6 +123,6 @@ export function usePresetManager(
     applyPreset,
     handleSavePreset,
     confirmSavePreset,
-    handleDeletePreset
+    handleDeletePreset,
   };
 }

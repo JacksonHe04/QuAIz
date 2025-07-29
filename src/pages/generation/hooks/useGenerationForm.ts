@@ -11,9 +11,9 @@ export function useGenerationForm() {
   const [formData, setFormData] = useState<GenerationRequest>({
     subject: '',
     description: '',
-    questionConfigs: []
+    questionConfigs: [],
   });
-  
+
   /**
    * 更新学科/主题字段
    * @param value 新的学科/主题值
@@ -37,9 +37,11 @@ export function useGenerationForm() {
    */
   const handleQuestionConfigChange = (type: QuestionType, count: number) => {
     setFormData(prev => {
-      const existingIndex = prev.questionConfigs.findIndex(config => config.type === type);
+      const existingIndex = prev.questionConfigs.findIndex(
+        config => config.type === type
+      );
       const newConfigs = [...prev.questionConfigs];
-      
+
       if (count === 0) {
         // 移除该题型
         if (existingIndex !== -1) {
@@ -53,7 +55,7 @@ export function useGenerationForm() {
           newConfigs.push({ type, count });
         }
       }
-      
+
       return { ...prev, questionConfigs: newConfigs };
     });
   };
@@ -63,7 +65,10 @@ export function useGenerationForm() {
    * @returns 总题目数量
    */
   const getTotalQuestions = () => {
-    return formData.questionConfigs.reduce((total, config) => total + config.count, 0);
+    return formData.questionConfigs.reduce(
+      (total, config) => total + config.count,
+      0
+    );
   };
 
   /**
@@ -75,7 +80,7 @@ export function useGenerationForm() {
     const config = formData.questionConfigs.find(c => c.type === type);
     return config ? config.count : 0;
   };
-  
+
   return {
     formData,
     setFormData,
@@ -83,6 +88,6 @@ export function useGenerationForm() {
     handleDescriptionChange,
     handleQuestionConfigChange,
     getTotalQuestions,
-    getQuestionCount
+    getQuestionCount,
   };
 }

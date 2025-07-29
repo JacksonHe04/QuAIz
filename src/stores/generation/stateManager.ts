@@ -23,7 +23,7 @@ interface AppState {
 export const createInitialGenerationState = (): GenerationState => ({
   status: 'idle',
   currentQuiz: null,
-  error: null
+  error: null,
 });
 
 /**
@@ -48,8 +48,8 @@ export class GenerationStateManager {
         completedQuestionCount: 0,
         startTime,
         endTime: undefined,
-        duration: undefined
-      }
+        duration: undefined,
+      },
     }));
   }
 
@@ -61,7 +61,7 @@ export class GenerationStateManager {
     this.set((state: AppState) => {
       const startTime = state.generation.startTime;
       const duration = startTime ? endTime - startTime : undefined;
-      
+
       return {
         ...state,
         generation: {
@@ -69,8 +69,8 @@ export class GenerationStateManager {
           status: 'error',
           error,
           endTime,
-          duration
-        }
+          duration,
+        },
       };
     });
   }
@@ -81,7 +81,7 @@ export class GenerationStateManager {
   reset(): void {
     this.set((state: AppState) => ({
       ...state,
-      generation: createInitialGenerationState()
+      generation: createInitialGenerationState(),
     }));
   }
 
@@ -94,8 +94,8 @@ export class GenerationStateManager {
       generation: {
         ...state.generation,
         currentQuiz: currentQuiz || state.generation.currentQuiz,
-        progress
-      }
+        progress,
+      },
     }));
   }
 
@@ -107,8 +107,11 @@ export class GenerationStateManager {
       ...state,
       generation: {
         ...state.generation,
-        streamingQuestions: [...(state.generation.streamingQuestions || []), question]
-      }
+        streamingQuestions: [
+          ...(state.generation.streamingQuestions || []),
+          question,
+        ],
+      },
     }));
   }
 
@@ -120,13 +123,13 @@ export class GenerationStateManager {
       const currentQuestions = state.generation.streamingQuestions || [];
       const newStreamingQuestions = [...currentQuestions];
       newStreamingQuestions[index] = question;
-      
+
       return {
         ...state,
         generation: {
           ...state.generation,
-          streamingQuestions: newStreamingQuestions
-        }
+          streamingQuestions: newStreamingQuestions,
+        },
       };
     });
   }
@@ -139,8 +142,8 @@ export class GenerationStateManager {
       ...state,
       generation: {
         ...state.generation,
-        completedQuestionCount: count
-      }
+        completedQuestionCount: count,
+      },
     }));
   }
 
@@ -152,7 +155,7 @@ export class GenerationStateManager {
     this.set((state: AppState) => {
       const startTime = state.generation.startTime;
       const duration = startTime ? endTime - startTime : undefined;
-      
+
       return {
         ...state,
         generation: {
@@ -161,12 +164,12 @@ export class GenerationStateManager {
           currentQuiz: quiz,
           progress: 100,
           endTime,
-          duration
+          duration,
         },
         answering: {
           currentQuestionIndex: 0,
-          isSubmitted: false
-        }
+          isSubmitted: false,
+        },
       };
     });
   }

@@ -20,13 +20,15 @@ export interface QuestionExtractionResult {
  * @param content 流式内容
  * @returns 已完整的题目数组和剩余内容
  */
-export function extractCompleteQuestions(content: string): QuestionExtractionResult {
+export function extractCompleteQuestions(
+  content: string
+): QuestionExtractionResult {
   // 寻找questions数组开始
   const questionsStart = content.indexOf('"questions": [');
   if (questionsStart === -1) {
     return { completeQuestions: [], remainingContent: content };
   }
-  
+
   const questionsContent = content.slice(questionsStart + 14); // 跳过 "questions": [
   const completeQuestions: Record<string, unknown>[] = [];
   let currentPos = 0;
@@ -34,25 +36,25 @@ export function extractCompleteQuestions(content: string): QuestionExtractionRes
   let inString = false;
   let questionStart = -1;
   let escapeNext = false;
-  
+
   // 逐字符解析，寻找完整的题目对象
   for (let i = 0; i < questionsContent.length; i++) {
     const char = questionsContent[i];
-    
+
     if (escapeNext) {
       escapeNext = false;
       continue;
     }
-    
+
     if (char === '\\') {
       escapeNext = true;
       continue;
     }
-    
+
     if (char === '"') {
       inString = !inString;
     }
-    
+
     if (!inString) {
       if (char === '{') {
         if (braceCount === 0) questionStart = i;
@@ -76,7 +78,7 @@ export function extractCompleteQuestions(content: string): QuestionExtractionRes
       }
     }
   }
-  
+
   // 提取部分题目（如果有）
   let partialQuestion: Partial<Record<string, unknown>> | undefined;
   if (questionStart !== -1) {
@@ -90,11 +92,11 @@ export function extractCompleteQuestions(content: string): QuestionExtractionRes
       partialQuestion = { question: extractPartialText(partialJson) };
     }
   }
-  
+
   return {
     completeQuestions,
     remainingContent: questionsContent.slice(currentPos),
-    partialQuestion
+    partialQuestion,
   };
 }
 
@@ -104,7 +106,7 @@ export function extractCompleteQuestions(content: string): QuestionExtractionRes
  * @returns 可显示的文本
  */
 export function extractPartialText(partialJson: string): string {
-  const questionMatch = partialJson.match(/"question":\s*"([^"]*)/)
+  const questionMatch = partialJson.match(/"question":\s*"([^"]*)/);
   return questionMatch ? questionMatch[1] : '正在生成题目...';
 }
 
@@ -113,9 +115,18 @@ export function extractPartialText(partialJson: string): string {
  * @param request 生成请求
  * @returns 题目总数
  */
-export function getTotalQuestionCount(request: Record<string, unknown>): number {
-  const questionConfigs = request.questionConfigs as Array<{ count: number }> | undefined;
-  return questionConfigs?.reduce((sum: number, config: { count: number }) => sum + config.count, 0) || 0;
+export function getTotalQuestionCount(
+  request: Record<string, unknown>
+): number {
+  const questionConfigs = request.questionConfigs as
+    | Array<{ count: number }>
+    | undefined;
+  return (
+    questionConfigs?.reduce(
+      (sum: number, config: { count: number }) => sum + config.count,
+      0
+    ) || 0
+  );
 }
 
 /**
@@ -124,18 +135,22 @@ export function getTotalQuestionCount(request: Record<string, unknown>): number 
  * @param totalCount 总题目数
  * @returns 进度信息
  */
-export function extractQuestionProgress(content: string, totalCount: number): {
+export function extractQuestionProgress(
+  content: string,
+  totalCount: number
+): {
   completed: number;
   total: number;
   percentage: number;
 } {
   const { completeQuestions } = extractCompleteQuestions(content);
   const completed = completeQuestions.length;
-  const percentage = totalCount > 0 ? Math.round((completed / totalCount) * 100) : 0;
-  
+  const percentage =
+    totalCount > 0 ? Math.round((completed / totalCount) * 100) : 0;
+
   return {
     completed,
     total: totalCount,
-    percentage
+    percentage,
   };
 }

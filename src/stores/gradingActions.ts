@@ -32,7 +32,7 @@ export const createGradingActions = (
    */
   startGrading: async (quiz?: Quiz) => {
     const currentQuiz = quiz || get().generation.currentQuiz;
-    
+
     if (!currentQuiz) {
       console.error('没有可批改的试卷');
       return;
@@ -45,16 +45,16 @@ export const createGradingActions = (
         status: 'grading',
         result: null,
         error: null,
-        progress: 0
-      }
+        progress: 0,
+      },
     }));
-    
+
     try {
       // 检查LLM配置是否完整
       const { isConfigured } = checkLLMConfig();
-      
+
       let gradingResult: GradingResult;
-      
+
       if (isConfigured) {
         // 使用真实LLM API批改试卷
         console.log('使用LLM API批改试卷');
@@ -64,7 +64,7 @@ export const createGradingActions = (
         console.warn('LLM配置不完整，使用模拟API批改试卷');
         gradingResult = await mockGradeQuiz(currentQuiz);
       }
-      
+
       // 设置完成状态
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       set((state: any) => ({
@@ -73,25 +73,26 @@ export const createGradingActions = (
           status: 'complete',
           result: gradingResult,
           error: null,
-          progress: 100
-        }
+          progress: 100,
+        },
       }));
     } catch (error) {
       console.error('批改试卷失败:', error);
-      const errorMessage = error instanceof Error ? error.message : '批改试卷时发生未知错误';
-      
+      const errorMessage =
+        error instanceof Error ? error.message : '批改试卷时发生未知错误';
+
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       set((state: any) => ({
         ...state,
         grading: {
           ...state.grading,
           status: 'error',
-          error: errorMessage
-        }
+          error: errorMessage,
+        },
       }));
     }
   },
-  
+
   /**
    * 设置批改错误
    * @param error 错误信息
@@ -103,11 +104,11 @@ export const createGradingActions = (
       grading: {
         ...state.grading,
         status: 'error',
-        error
-      }
+        error,
+      },
     }));
   },
-  
+
   /**
    * 重置批改状态
    */
@@ -119,10 +120,10 @@ export const createGradingActions = (
         status: 'idle',
         result: null,
         error: null,
-        progress: 0
-      }
+        progress: 0,
+      },
     }));
-  }
+  },
 });
 
 /**
@@ -137,7 +138,7 @@ export const gradingUtils = {
     if (result.maxScore === 0) return 0;
     return Math.round((result.totalScore / result.maxScore) * 100);
   },
-  
+
   /**
    * 获取等级评价
    * @param percentage 得分率
@@ -149,7 +150,7 @@ export const gradingUtils = {
     if (percentage >= 60) return '及格';
     return '不及格';
   },
-  
+
   /**
    * 获取等级颜色
    * @param percentage 得分率
@@ -161,7 +162,7 @@ export const gradingUtils = {
     if (percentage >= 60) return 'text-orange-600';
     return 'text-red-600';
   },
-  
+
   /**
    * 格式化分数显示
    * @param score 得分
@@ -170,7 +171,7 @@ export const gradingUtils = {
   formatScore: (score: number, maxScore: number): string => {
     return `${score}/${maxScore}`;
   },
-  
+
   /**
    * 检查是否通过
    * @param result 批改结果
@@ -179,5 +180,5 @@ export const gradingUtils = {
   isPassed: (result: GradingResult, passingScore: number = 60): boolean => {
     const percentage = gradingUtils.getScorePercentage(result);
     return percentage >= passingScore;
-  }
+  },
 };

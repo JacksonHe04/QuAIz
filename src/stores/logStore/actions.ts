@@ -1,5 +1,10 @@
 import type { LogEntry, StreamChunk, StreamSession } from './types';
-import { generateId, getCurrentTimestamp, limitArrayLength, removeFromArray } from './utils';
+import {
+  generateId,
+  getCurrentTimestamp,
+  limitArrayLength,
+  removeFromArray,
+} from './utils';
 
 /**
  * 日志操作接口
@@ -17,7 +22,11 @@ export interface LogActions {
  */
 export interface StreamActions {
   startStreamSession: (requestId?: string, operation?: string) => string;
-  addStreamChunk: (sessionId: string, content: string, requestId?: string) => void;
+  addStreamChunk: (
+    sessionId: string,
+    content: string,
+    requestId?: string
+  ) => void;
   endStreamSession: (sessionId: string) => void;
   clearStreamSessions: () => void;
   setActiveTab: (tab: 'logs' | 'stream') => void;
@@ -39,16 +48,16 @@ export const createLogActions = (
    * 添加日志条目
    * @param entry 日志条目（不包含id和timestamp）
    */
-  addLog: (entry) => {
+  addLog: entry => {
     const newLog: LogEntry = {
       ...entry,
       id: generateId('log'),
-      timestamp: getCurrentTimestamp()
+      timestamp: getCurrentTimestamp(),
     };
 
-    set((state) => ({
+    set(state => ({
       ...state,
-      logs: limitArrayLength([...state.logs, newLog], maxLogs)
+      logs: limitArrayLength([...state.logs, newLog], maxLogs),
     }));
   },
 
@@ -56,34 +65,34 @@ export const createLogActions = (
    * 清空所有日志
    */
   clearLogs: () => {
-    set((state) => ({ ...state, logs: [] }));
+    set(state => ({ ...state, logs: [] }));
   },
 
   /**
    * 切换日志面板可见性
    */
   toggleVisibility: () => {
-    set((state) => ({ ...state, isVisible: !state.isVisible }));
+    set(state => ({ ...state, isVisible: !state.isVisible }));
   },
 
   /**
    * 设置日志面板可见性
    * @param visible 是否可见
    */
-  setVisibility: (visible) => {
-    set((state) => ({ ...state, isVisible: visible }));
+  setVisibility: visible => {
+    set(state => ({ ...state, isVisible: visible }));
   },
 
   /**
    * 移除指定数量的旧日志
    * @param count 要移除的日志数量
    */
-  removeLogs: (count) => {
-    set((state) => ({
+  removeLogs: count => {
+    set(state => ({
       ...state,
-      logs: removeFromArray(state.logs, count)
+      logs: removeFromArray(state.logs, count),
     }));
-  }
+  },
 });
 
 /**
@@ -111,13 +120,16 @@ export const createStreamActions = (
       chunks: [],
       totalContent: '',
       requestId,
-      operation
+      operation,
     };
 
-    set((state) => ({
+    set(state => ({
       ...state,
-      streamSessions: limitArrayLength([...state.streamSessions, newSession], maxStreamSessions),
-      currentStreamSession: newSession
+      streamSessions: limitArrayLength(
+        [...state.streamSessions, newSession],
+        maxStreamSessions
+      ),
+      currentStreamSession: newSession,
     }));
 
     return sessionId;
@@ -134,27 +146,30 @@ export const createStreamActions = (
       id: generateId('chunk'),
       timestamp: getCurrentTimestamp(),
       content,
-      requestId
+      requestId,
     };
 
-    set((state) => {
-      const updatedSessions = state.streamSessions.map((session: StreamSession) => {
-        if (session.id === sessionId) {
-          return {
-            ...session,
-            chunks: [...session.chunks, chunk],
-            totalContent: session.totalContent + content
-          };
+    set(state => {
+      const updatedSessions = state.streamSessions.map(
+        (session: StreamSession) => {
+          if (session.id === sessionId) {
+            return {
+              ...session,
+              chunks: [...session.chunks, chunk],
+              totalContent: session.totalContent + content,
+            };
+          }
+          return session;
         }
-        return session;
-      });
+      );
 
-      const currentSession = updatedSessions.find((s: StreamSession) => s.id === sessionId) || null;
+      const currentSession =
+        updatedSessions.find((s: StreamSession) => s.id === sessionId) || null;
 
       return {
         ...state,
         streamSessions: updatedSessions,
-        currentStreamSession: currentSession
+        currentStreamSession: currentSession,
       };
     });
   },
@@ -163,22 +178,24 @@ export const createStreamActions = (
    * 结束流式会话
    * @param sessionId 会话ID
    */
-  endStreamSession: (sessionId) => {
-    set((state) => {
-      const updatedSessions = state.streamSessions.map((session: StreamSession) => {
-        if (session.id === sessionId) {
-          return {
-            ...session,
-            endTime: getCurrentTimestamp()
-          };
+  endStreamSession: sessionId => {
+    set(state => {
+      const updatedSessions = state.streamSessions.map(
+        (session: StreamSession) => {
+          if (session.id === sessionId) {
+            return {
+              ...session,
+              endTime: getCurrentTimestamp(),
+            };
+          }
+          return session;
         }
-        return session;
-      });
+      );
 
       return {
         ...state,
         streamSessions: updatedSessions,
-        currentStreamSession: null
+        currentStreamSession: null,
       };
     });
   },
@@ -187,10 +204,10 @@ export const createStreamActions = (
    * 清空所有流式会话
    */
   clearStreamSessions: () => {
-    set((state) => ({ 
+    set(state => ({
       ...state,
       streamSessions: [],
-      currentStreamSession: null
+      currentStreamSession: null,
     }));
   },
 
@@ -198,18 +215,18 @@ export const createStreamActions = (
    * 设置活动标签页
    * @param tab 标签页类型
    */
-  setActiveTab: (tab) => {
-    set((state) => ({ ...state, activeTab: tab }));
+  setActiveTab: tab => {
+    set(state => ({ ...state, activeTab: tab }));
   },
 
   /**
    * 移除指定数量的旧流式会话
    * @param count 要移除的会话数量
    */
-  removeStreamSessions: (count) => {
-    set((state) => ({
+  removeStreamSessions: count => {
+    set(state => ({
       ...state,
-      streamSessions: removeFromArray(state.streamSessions, count)
+      streamSessions: removeFromArray(state.streamSessions, count),
     }));
-  }
+  },
 });

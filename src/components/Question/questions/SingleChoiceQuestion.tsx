@@ -16,7 +16,7 @@ export const SingleChoiceQuestion: React.FC<Props> = ({
   question,
   onAnswerChange,
   disabled = false,
-  showCorrectAnswer = false
+  showCorrectAnswer = false,
 }) => {
   const handleOptionChange = (optionIndex: number) => {
     if (!disabled) {
@@ -25,17 +25,17 @@ export const SingleChoiceQuestion: React.FC<Props> = ({
   };
 
   return (
-    <div className="space-y-4">
-      <h3 className="text-lg font-medium text-gray-900">
-        {question.question}
-      </h3>
-      
-      <div className="space-y-2">
+    <div className='space-y-4'>
+      <h3 className='text-lg font-medium text-gray-900'>{question.question}</h3>
+
+      <div className='space-y-2'>
         {question.options.map((option, index) => {
           const isSelected = question.userAnswer === index;
-          const isCorrect = showCorrectAnswer && index === question.correctAnswer;
-          const isWrong = showCorrectAnswer && isSelected && index !== question.correctAnswer;
-          
+          const isCorrect =
+            showCorrectAnswer && index === question.correctAnswer;
+          const isWrong =
+            showCorrectAnswer && isSelected && index !== question.correctAnswer;
+
           return (
             <label
               key={index}
@@ -48,22 +48,22 @@ export const SingleChoiceQuestion: React.FC<Props> = ({
               `}
             >
               <input
-                type="radio"
+                type='radio'
                 name={`question-${question.id}`}
                 value={index}
                 checked={isSelected}
                 onChange={() => handleOptionChange(index)}
                 disabled={disabled}
-                className="mr-3 text-blue-600 focus:ring-blue-500"
+                className='mr-3 text-blue-600 focus:ring-blue-500'
               />
-              <span className="flex-1">
+              <span className='flex-1'>
                 {String.fromCharCode(65 + index)}. {option}
               </span>
               {showCorrectAnswer && isCorrect && (
-                <span className="text-green-600 font-medium">✓ 正确答案</span>
+                <span className='text-green-600 font-medium'>✓ 正确答案</span>
               )}
               {showCorrectAnswer && isWrong && (
-                <span className="text-red-600 font-medium">✗ 错误</span>
+                <span className='text-red-600 font-medium'>✗ 错误</span>
               )}
             </label>
           );

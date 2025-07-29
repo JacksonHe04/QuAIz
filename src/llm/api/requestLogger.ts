@@ -28,13 +28,17 @@ export class RequestLogger {
   /**
    * 记录请求开始
    */
-  logRequestStart(request: LLMRequest, config: { model: string }, isStream?: boolean): void {
+  logRequestStart(
+    request: LLMRequest,
+    config: { model: string },
+    isStream?: boolean
+  ): void {
     logger.info(`开始发送${this.operation}请求 [${this.requestId}]`, 'llm', {
       model: request.model || config.model,
       messageCount: request.messages.length,
       maxTokens: request.max_tokens,
       temperature: request.temperature,
-      stream: isStream || false
+      stream: isStream || false,
     });
   }
 
@@ -44,7 +48,7 @@ export class RequestLogger {
   logHttpRequest(url: string): void {
     logger.info(`发送HTTP请求 [${this.requestId}]`, 'api', {
       url,
-      method: 'POST'
+      method: 'POST',
     });
   }
 
@@ -55,7 +59,7 @@ export class RequestLogger {
     logger.info(`收到HTTP响应 [${this.requestId}]`, 'api', {
       status: response.status,
       statusText: response.statusText,
-      ok: response.ok
+      ok: response.ok,
     });
   }
 
@@ -64,7 +68,7 @@ export class RequestLogger {
    */
   logSuccess(contentLength: number): void {
     logger.success(`${this.operation}请求完成 [${this.requestId}]`, 'llm', {
-      responseLength: contentLength
+      responseLength: contentLength,
     });
   }
 
@@ -74,7 +78,7 @@ export class RequestLogger {
   logError(error: string | Error): void {
     const errorMessage = error instanceof Error ? error.message : error;
     logger.error(`${this.operation}请求异常 [${this.requestId}]`, 'llm', {
-      error: errorMessage
+      error: errorMessage,
     });
   }
 
@@ -91,7 +95,7 @@ export class RequestLogger {
   logApiError(status: number, statusText: string): void {
     logger.error(`${this.operation}请求失败 [${this.requestId}]`, 'api', {
       status,
-      statusText
+      statusText,
     });
   }
 
@@ -99,9 +103,9 @@ export class RequestLogger {
    * 记录响应解析失败
    */
   logParseError(error: string, response?: unknown): void {
-    logger.error(`响应解析失败 [${this.requestId}]`, 'llm', { 
-      error, 
-      response 
+    logger.error(`响应解析失败 [${this.requestId}]`, 'llm', {
+      error,
+      response,
     });
   }
 }

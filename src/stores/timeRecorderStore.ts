@@ -48,75 +48,77 @@ type TimeRecorderStore = TimeRecorderState & TimeRecorderActions;
  * 全局时间记录状态管理
  * 独立于其他状态，避免重新渲染导致的状态丢失
  */
-export const useTimeRecorderStore = create<TimeRecorderStore>()(subscribeWithSelector((set, get) => ({
-  // 初始状态
-  startTime: null,
-  endTime: null,
-  duration: null,
-  status: 'idle',
-  currentDuration: 0,
-  isExpanded: false,
+export const useTimeRecorderStore = create<TimeRecorderStore>()(
+  subscribeWithSelector((set, get) => ({
+    // 初始状态
+    startTime: null,
+    endTime: null,
+    duration: null,
+    status: 'idle',
+    currentDuration: 0,
+    isExpanded: false,
 
-  // 操作方法
-  startTiming: () => {
-    const now = Date.now();
-    set({
-      startTime: now,
-      endTime: null,
-      duration: null,
-      status: 'generating',
-      currentDuration: 0
-    });
-  },
+    // 操作方法
+    startTiming: () => {
+      const now = Date.now();
+      set({
+        startTime: now,
+        endTime: null,
+        duration: null,
+        status: 'generating',
+        currentDuration: 0,
+      });
+    },
 
-  endTiming: () => {
-    const { startTime } = get();
-    if (!startTime) return;
-    
-    const now = Date.now();
-    const duration = now - startTime;
-    
-    set({
-      endTime: now,
-      duration,
-      status: 'completed',
-      currentDuration: duration
-    });
-  },
+    endTiming: () => {
+      const { startTime } = get();
+      if (!startTime) return;
 
-  setError: () => {
-    set({
-      status: 'error'
-    });
-  },
+      const now = Date.now();
+      const duration = now - startTime;
 
-  reset: () => {
-    set({
-      startTime: null,
-      endTime: null,
-      duration: null,
-      status: 'idle',
-      currentDuration: 0,
-      isExpanded: false
-    });
-  },
+      set({
+        endTime: now,
+        duration,
+        status: 'completed',
+        currentDuration: duration,
+      });
+    },
 
-  updateCurrentDuration: (duration: number) => {
-    // 避免过于频繁的状态更新，减少性能开销
-    const currentState = get();
-    if (Math.abs(duration - currentState.currentDuration) > 50) {
-      set({ currentDuration: duration });
-    }
-  },
+    setError: () => {
+      set({
+        status: 'error',
+      });
+    },
 
-  toggleExpanded: () => {
-    set((state) => ({ isExpanded: !state.isExpanded }));
-  },
+    reset: () => {
+      set({
+        startTime: null,
+        endTime: null,
+        duration: null,
+        status: 'idle',
+        currentDuration: 0,
+        isExpanded: false,
+      });
+    },
 
-  setExpanded: (expanded: boolean) => {
-    set({ isExpanded: expanded });
-  }
-})));
+    updateCurrentDuration: (duration: number) => {
+      // 避免过于频繁的状态更新，减少性能开销
+      const currentState = get();
+      if (Math.abs(duration - currentState.currentDuration) > 50) {
+        set({ currentDuration: duration });
+      }
+    },
+
+    toggleExpanded: () => {
+      set(state => ({ isExpanded: !state.isExpanded }));
+    },
+
+    setExpanded: (expanded: boolean) => {
+      set({ isExpanded: expanded });
+    },
+  }))
+);
 
 /**
  * 同步主应用状态到时间记录状态
@@ -128,19 +130,20 @@ export const syncTimeRecorderWithAppState = (generationState: {
   endTime?: number;
   duration?: number;
 }) => {
-  const { startTiming, endTiming, setError, reset } = useTimeRecorderStore.getState();
+  const { startTiming, endTiming, setError, reset } =
+    useTimeRecorderStore.getState();
   const currentTimeState = useTimeRecorderStore.getState();
-  
+
   // 如果时间记录已经完成，不再同步（保护已完成的记录）
   if (currentTimeState.status === 'completed' && currentTimeState.startTime) {
     return;
   }
-  
+
   // 避免相同状态的重复同步
   if (currentTimeState.status === generationState.status) {
     return;
   }
-  
+
   switch (generationState.status) {
     case 'generating':
       if (generationState.startTime) {
@@ -149,7 +152,7 @@ export const syncTimeRecorderWithAppState = (generationState: {
           endTime: null,
           duration: null,
           status: 'generating',
-          currentDuration: Date.now() - generationState.startTime
+          currentDuration: Date.now() - generationState.startTime,
         });
       } else {
         startTiming();
@@ -157,13 +160,17 @@ export const syncTimeRecorderWithAppState = (generationState: {
       break;
     case 'complete':
     case 'completed':
-      if (generationState.startTime && generationState.endTime && generationState.duration) {
+      if (
+        generationState.startTime &&
+        generationState.endTime &&
+        generationState.duration
+      ) {
         useTimeRecorderStore.setState({
           startTime: generationState.startTime,
           endTime: generationState.endTime,
           duration: generationState.duration,
           status: 'completed',
-          currentDuration: generationState.duration
+          currentDuration: generationState.duration,
         });
       } else {
         endTiming();

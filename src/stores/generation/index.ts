@@ -8,10 +8,13 @@ export type {
   GenerationStatus,
   GenerationState,
   GenerationActions,
-  StateUpdater
+  StateUpdater,
 } from './types';
 
 // 导出主要功能
 export { createGenerationActions } from './actions';
-export { GenerationStateManager, createInitialGenerationState } from './stateManager';
+export {
+  GenerationStateManager,
+  createInitialGenerationState,
+} from './stateManager';
 export { generateWithLLM, generateWithMock, generateQuiz } from './generators';

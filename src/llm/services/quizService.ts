@@ -7,7 +7,11 @@
 export { QuizGenerationService } from './quizGenerationService';
 export { QuizGradingService } from './quizGradingService';
 export { BaseLLMService } from './baseService';
-export type { ProgressCallback, ValidationResult, JSONExtractionResult } from './baseService';
+export type {
+  ProgressCallback,
+  ValidationResult,
+  JSONExtractionResult,
+} from './baseService';
 export type { QuizProgressCallback } from './quizGenerationService';
 export type { GradingProgressCallback } from './quizGradingService';
 
@@ -17,9 +21,13 @@ export {
   getDefaultServices,
   updateDefaultLLMClient,
   quizGenerationService,
-  quizGradingService
+  quizGradingService,
 } from './serviceFactory';
 
 // 保持向后兼容的类型定义
 import type { Quiz } from '@/types';
-export type StreamCallback = (content: string, isComplete: boolean, quiz?: Quiz) => void;
+export type StreamCallback = (
+  content: string,
+  isComplete: boolean,
+  quiz?: Quiz
+) => void;

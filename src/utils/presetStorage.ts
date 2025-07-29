@@ -18,7 +18,9 @@ export const getPresets = (): QuestionPreset[] => {
 /**
  * 保存预设方案
  */
-export const savePreset = (preset: Omit<QuestionPreset, 'id' | 'createdAt' | 'updatedAt'>): QuestionPreset => {
+export const savePreset = (
+  preset: Omit<QuestionPreset, 'id' | 'createdAt' | 'updatedAt'>
+): QuestionPreset => {
   try {
     const presets = getPresets();
     const now = Date.now();
@@ -26,9 +28,9 @@ export const savePreset = (preset: Omit<QuestionPreset, 'id' | 'createdAt' | 'up
       ...preset,
       id: `preset_${now}_${Math.random().toString(36).substr(2, 9)}`,
       createdAt: now,
-      updatedAt: now
+      updatedAt: now,
     };
-    
+
     presets.push(newPreset);
     localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(presets));
     return newPreset;
@@ -55,21 +57,24 @@ export const deletePreset = (presetId: string): void => {
 /**
  * 更新预设方案
  */
-export const updatePreset = (presetId: string, updates: Partial<Omit<QuestionPreset, 'id' | 'createdAt'>>): QuestionPreset | null => {
+export const updatePreset = (
+  presetId: string,
+  updates: Partial<Omit<QuestionPreset, 'id' | 'createdAt'>>
+): QuestionPreset | null => {
   try {
     const presets = getPresets();
     const presetIndex = presets.findIndex(preset => preset.id === presetId);
-    
+
     if (presetIndex === -1) {
       return null;
     }
-    
+
     const updatedPreset = {
       ...presets[presetIndex],
       ...updates,
-      updatedAt: Date.now()
+      updatedAt: Date.now(),
     };
-    
+
     presets[presetIndex] = updatedPreset;
     localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(presets));
     return updatedPreset;
@@ -82,22 +87,29 @@ export const updatePreset = (presetId: string, updates: Partial<Omit<QuestionPre
 /**
  * 根据题型配置生成预设名称建议
  */
-export const generatePresetName = (questionConfigs: QuestionConfig[]): string => {
+export const generatePresetName = (
+  questionConfigs: QuestionConfig[]
+): string => {
   if (questionConfigs.length === 0) {
     return '空方案';
   }
-  
+
   const typeLabels: Record<string, string> = {
     'single-choice': '单选',
     'multiple-choice': '多选',
     'fill-blank': '填空',
     'short-answer': '简答',
     'code-output': '代码输出',
-    'code-writing': '代码编写'
+    'code-writing': '代码编写',
   };
-  
-  const totalQuestions = questionConfigs.reduce((sum, config) => sum + config.count, 0);
-  const typeNames = questionConfigs.map(config => typeLabels[config.type] || config.type).join('+');
-  
+
+  const totalQuestions = questionConfigs.reduce(
+    (sum, config) => sum + config.count,
+    0
+  );
+  const typeNames = questionConfigs
+    .map(config => typeLabels[config.type] || config.type)
+    .join('+');
+
   return `${typeNames}(${totalQuestions}题)`;
 };

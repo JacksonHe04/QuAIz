@@ -28,17 +28,27 @@ export class LLMOperationError extends Error {
  * @returns 永不返回，总是抛出错误
  */
 export function handleLLMError(
-  error: unknown, 
-  requestId: string, 
+  error: unknown,
+  requestId: string,
   operation: string
 ): never {
   const errorMessage = error instanceof Error ? error.message : '未知错误';
   logger.llm.error(`${operation}失败`, { requestId, error: errorMessage });
-  
+
   if (error instanceof Error) {
-    throw new LLMOperationError(`${operation}失败: ${error.message}`, operation, requestId, error);
+    throw new LLMOperationError(
+      `${operation}失败: ${error.message}`,
+      operation,
+      requestId,
+      error
+    );
   }
-  throw new LLMOperationError(`${operation}失败: 未知错误`, operation, requestId, error);
+  throw new LLMOperationError(
+    `${operation}失败: 未知错误`,
+    operation,
+    requestId,
+    error
+  );
 }
 
 /**
@@ -84,7 +94,7 @@ export function validateConfig(
   const missingFields = requiredFields.filter(
     field => !config[field] || config[field] === ''
   );
-  
+
   if (missingFields.length > 0) {
     throw new Error(
       `${configName}配置不完整，缺少字段: ${missingFields.join(', ')}`

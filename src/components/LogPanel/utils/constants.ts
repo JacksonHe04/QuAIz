@@ -10,7 +10,7 @@ export const LOG_LEVEL_STYLES = {
   success: 'text-green-600 bg-green-50 border-green-200',
   warning: 'text-yellow-600 bg-yellow-50 border-yellow-200',
   error: 'text-red-600 bg-red-50 border-red-200',
-  default: 'text-gray-600 bg-gray-50 border-gray-200'
+  default: 'text-gray-600 bg-gray-50 border-gray-200',
 } as const;
 
 /**
@@ -20,7 +20,7 @@ export const LOG_LEVEL_BADGE_STYLES = {
   error: 'bg-red-100 text-red-700',
   warning: 'bg-yellow-100 text-yellow-700',
   success: 'bg-green-100 text-green-700',
-  default: 'bg-blue-100 text-blue-700'
+  default: 'bg-blue-100 text-blue-700',
 } as const;
 
 /**
@@ -31,7 +31,7 @@ export const CATEGORY_ICONS = {
   api: '🌐',
   system: '⚙️',
   user: '👤',
-  default: '📝'
+  default: '📝',
 } as const;
 
 /**
@@ -43,15 +43,15 @@ export const TAB_CONFIG = {
     title: '系统日志',
     emptyIcon: '📝',
     emptyTitle: '暂无日志记录',
-    emptyDescription: '系统活动将在这里显示'
+    emptyDescription: '系统活动将在这里显示',
   },
   stream: {
     icon: '🤖',
     title: '实时回复',
     emptyIcon: '🤖',
     emptyTitle: '暂无流式回复记录',
-    emptyDescription: '大模型的实时回复将在这里显示'
-  }
+    emptyDescription: '大模型的实时回复将在这里显示',
+  },
 } as const;
 
 /**

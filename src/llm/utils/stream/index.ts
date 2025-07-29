@@ -10,21 +10,14 @@ export type {
   StreamRequestOptions,
   TextStreamOptions,
   BaseRequestOptions,
-  StreamState
+  StreamState,
 } from './types';
 
 // 流式JSON处理
-export {
-  StreamProcessor,
-  executeStreamLLMRequest
-} from './processor';
+export { StreamProcessor, executeStreamLLMRequest } from './processor';
 
 // 文本流式处理
-export {
-  executeTextStreamLLMRequest
-} from './textProcessor';
+export { executeTextStreamLLMRequest } from './textProcessor';
 
 // 基础请求执行
-export {
-  executeLLMRequest
-} from './requestExecutor';
+export { executeLLMRequest } from './requestExecutor';

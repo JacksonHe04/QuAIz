@@ -19,8 +19,8 @@ export const FloatingToggle: React.FC<FloatingToggleProps> = ({ onClick }) => {
     <FloatingButton
       icon={BarChart3}
       onClick={onClick}
-      position="left"
-      title="打开日志面板"
+      position='left'
+      title='打开日志面板'
     />
   );
 };

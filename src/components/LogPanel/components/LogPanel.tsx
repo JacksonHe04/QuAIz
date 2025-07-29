@@ -14,27 +14,31 @@ import { useAutoScroll } from '../hooks/useAutoScroll';
  * 从左侧弹出的侧边栏，显示实时日志信息和流式回复
  */
 export const LogPanel: React.FC = () => {
-  const { 
-    logs, 
-    isVisible, 
-    toggleVisibility, 
+  const {
+    logs,
+    isVisible,
+    toggleVisibility,
     clearLogs,
     streamSessions,
     currentStreamSession,
     activeTab,
     setActiveTab,
-    clearStreamSessions
+    clearStreamSessions,
   } = useLogStore();
-  
+
   // 日志标签页的自动滚动
   const logsAutoScroll = useAutoScroll([logs]);
-  
+
   // 流式回复标签页的自动滚动
-  const streamAutoScroll = useAutoScroll([streamSessions, currentStreamSession]);
-  
+  const streamAutoScroll = useAutoScroll([
+    streamSessions,
+    currentStreamSession,
+  ]);
+
   // 获取当前标签页的自动滚动状态
-  const currentAutoScroll = activeTab === 'logs' ? logsAutoScroll : streamAutoScroll;
-  
+  const currentAutoScroll =
+    activeTab === 'logs' ? logsAutoScroll : streamAutoScroll;
+
   /**
    * 清空当前标签页内容
    */
@@ -45,62 +49,61 @@ export const LogPanel: React.FC = () => {
       clearStreamSessions();
     }
   };
-  
+
   /**
    * 获取当前标签页的记录数量
    */
   const getCurrentCount = () => {
     return activeTab === 'logs' ? logs.length : streamSessions.length;
   };
-  
+
   /**
    * 渲染日志标签页内容
    */
   const renderLogsContent = () => {
     if (logs.length === 0) {
-      return <EmptyState tabType="logs" />;
+      return <EmptyState tabType='logs' />;
     }
-    
-    return logs.map((log) => (
-      <LogEntryComponent key={log.id} log={log} />
-    ));
+
+    return logs.map(log => <LogEntryComponent key={log.id} log={log} />);
   };
-  
+
   /**
    * 渲染流式回复标签页内容
    */
   const renderStreamContent = () => {
     if (streamSessions.length === 0) {
       return (
-        <EmptyState 
-          tabType="stream" 
+        <EmptyState
+          tabType='stream'
           currentStreamSession={currentStreamSession}
         />
       );
     }
-    
+
     return (
       <>
         {/* 显示历史会话 */}
-        {streamSessions.map((session) => (
+        {streamSessions.map(session => (
           <StreamSessionComponent key={session.id} session={session} />
         ))}
-        
+
         {/* 显示当前进行中的会话 */}
-        {currentStreamSession && !streamSessions.find(s => s.id === currentStreamSession.id) && (
-          <div className="border-2 border-blue-200 border-dashed rounded-lg">
-            <StreamSessionComponent session={currentStreamSession} />
-          </div>
-        )}
+        {currentStreamSession &&
+          !streamSessions.find(s => s.id === currentStreamSession.id) && (
+            <div className='border-2 border-blue-200 border-dashed rounded-lg'>
+              <StreamSessionComponent session={currentStreamSession} />
+            </div>
+          )}
       </>
     );
   };
-  
+
   return (
     <>
       {/* 侧边栏面板 - 使用相对定位实现挤压效果 */}
-      <div 
-        id="log-panel-sidebar"
+      <div
+        id='log-panel-sidebar'
         className={`
           h-full bg-white shadow-2xl border-r border-gray-200
           w-96 transform transition-all duration-300 ease-in-out
@@ -117,7 +120,7 @@ export const LogPanel: React.FC = () => {
         />
 
         {/* 标签页头部 */}
-        <TabHeader 
+        <TabHeader
           activeTab={activeTab}
           onTabChange={setActiveTab}
           logsCount={logs.length}
@@ -125,10 +128,10 @@ export const LogPanel: React.FC = () => {
         />
 
         {/* 内容区域 */}
-        <div 
+        <div
           ref={currentAutoScroll.scrollRef}
           onScroll={currentAutoScroll.handleScroll}
-          className="flex-1 overflow-y-auto p-4 space-y-2"
+          className='flex-1 overflow-y-auto p-4 space-y-2'
         >
           {activeTab === 'logs' ? renderLogsContent() : renderStreamContent()}
         </div>
@@ -141,9 +144,7 @@ export const LogPanel: React.FC = () => {
       </div>
 
       {/* 浮动切换按钮 - 当面板关闭时显示 */}
-      {!isVisible && (
-        <FloatingToggle onClick={toggleVisibility} />
-      )}
+      {!isVisible && <FloatingToggle onClick={toggleVisibility} />}
     </>
   );
 };

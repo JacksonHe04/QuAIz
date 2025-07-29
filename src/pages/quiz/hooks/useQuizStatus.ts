@@ -11,7 +11,7 @@ export function useQuizStatus(quiz: Quiz | null) {
    */
   const answeredCount = useMemo(() => {
     if (!quiz) return 0;
-    
+
     return quiz.questions.filter(q => {
       switch (q.type) {
         case 'single-choice':
@@ -35,21 +35,28 @@ export function useQuizStatus(quiz: Quiz | null) {
    */
   const isQuestionAnswered = (questionIndex: number): boolean => {
     if (!quiz) return false;
-    
+
     const question = quiz.questions[questionIndex];
     if (!question) return false;
-    
+
     switch (question.type) {
       case 'single-choice':
         return question.userAnswer !== undefined;
       case 'multiple-choice':
-        return question.userAnswer !== undefined && question.userAnswer.length > 0;
+        return (
+          question.userAnswer !== undefined && question.userAnswer.length > 0
+        );
       case 'fill-blank':
-        return question.userAnswer !== undefined && question.userAnswer.some(answer => answer?.trim() !== '');
+        return (
+          question.userAnswer !== undefined &&
+          question.userAnswer.some(answer => answer?.trim() !== '')
+        );
       case 'short-answer':
       case 'code-output':
       case 'code-writing':
-        return question.userAnswer !== undefined && question.userAnswer.trim() !== '';
+        return (
+          question.userAnswer !== undefined && question.userAnswer.trim() !== ''
+        );
       default:
         return false;
     }
@@ -57,6 +64,6 @@ export function useQuizStatus(quiz: Quiz | null) {
 
   return {
     answeredCount,
-    isQuestionAnswered
+    isQuestionAnswered,
   };
 }

@@ -19,13 +19,13 @@ export interface JSONExtractionResult {
 export function extractJSONFromStream(content: string): JSONExtractionResult {
   // 预处理：移除可能的markdown代码块标记
   let processedContent = content;
-  
+
   // 检查是否包含```json标记
   const jsonBlockStart = processedContent.indexOf('```json');
   if (jsonBlockStart !== -1) {
     // 找到```json后的内容
     processedContent = processedContent.slice(jsonBlockStart + 7);
-    
+
     // 查找结束的```标记
     const blockEnd = processedContent.indexOf('```');
     if (blockEnd !== -1) {
@@ -42,20 +42,20 @@ export function extractJSONFromStream(content: string): JSONExtractionResult {
       }
     }
   }
-  
+
   // 寻找JSON开始标记
   const jsonStart = processedContent.indexOf('{');
   if (jsonStart === -1) {
     return { json: null, isComplete: false };
   }
-  
+
   // 从JSON开始位置截取内容
   const jsonContent = processedContent.slice(jsonStart);
-  
+
   // 尝试找到完整的JSON结构
   let braceCount = 0;
   let jsonEnd = -1;
-  
+
   for (let i = 0; i < jsonContent.length; i++) {
     const char = jsonContent[i];
     if (char === '{') {
@@ -68,12 +68,12 @@ export function extractJSONFromStream(content: string): JSONExtractionResult {
       }
     }
   }
-  
+
   if (jsonEnd === -1) {
     // JSON还未完整
     return { json: jsonContent, isComplete: false };
   }
-  
+
   // 提取完整的JSON
   const completeJSON = jsonContent.slice(0, jsonEnd + 1);
   return { json: completeJSON, isComplete: true };
@@ -85,23 +85,26 @@ export function extractJSONFromStream(content: string): JSONExtractionResult {
  * @param arrayField 可选的数组字段名，用于特殊处理数组闭合
  * @returns 修复后的 JSON 字符串
  */
-export function fixIncompleteJSON(jsonStr: string, arrayField?: string): string {
+export function fixIncompleteJSON(
+  jsonStr: string,
+  arrayField?: string
+): string {
   let fixedJson = jsonStr;
-  
+
   // 移除末尾逗号
   fixedJson = fixedJson.replace(/,\s*$/, '');
-  
+
   // 如果指定了数组字段，尝试闭合数组
   if (arrayField && fixedJson.includes(`"${arrayField}": [`)) {
     if (!fixedJson.includes(']}')) {
       // 简单的数组闭合逻辑
       const arrayStart = fixedJson.indexOf(`"${arrayField}": [`);
       const afterArray = fixedJson.slice(arrayStart + arrayField.length + 5);
-      
+
       // 计算未闭合的括号
       let bracketCount = 1;
       let lastValidPos = arrayStart + arrayField.length + 5;
-      
+
       for (let i = 0; i < afterArray.length; i++) {
         const char = afterArray[i];
         if (char === '[') bracketCount++;
@@ -113,13 +116,13 @@ export function fixIncompleteJSON(jsonStr: string, arrayField?: string): string 
           }
         }
       }
-      
+
       if (bracketCount > 0) {
         fixedJson = fixedJson.slice(0, lastValidPos + 1) + ']}';
       }
     }
   }
-  
+
   return fixedJson;
 }
 
@@ -130,18 +133,18 @@ export function fixIncompleteJSON(jsonStr: string, arrayField?: string): string 
  */
 export function cleanLLMResponse(content: string): string {
   let cleanedContent = content.trim();
-  
+
   // 移除```json开头和```结尾
   if (cleanedContent.startsWith('```json')) {
     cleanedContent = cleanedContent.slice(7);
   } else if (cleanedContent.startsWith('```')) {
     cleanedContent = cleanedContent.slice(3);
   }
-  
+
   if (cleanedContent.endsWith('```')) {
     cleanedContent = cleanedContent.slice(0, -3);
   }
-  
+
   return cleanedContent.trim();
 }
 

@@ -43,14 +43,14 @@ export const FloatingButton: React.FC<FloatingButtonProps> = ({
   title,
   top = 'top-40',
   className = '',
-  disabled = false
+  disabled = false,
 }) => {
   /**
    * 获取位置相关的样式类
    */
   const getPositionClasses = () => {
     const baseClasses = `fixed ${top} z-50`;
-    
+
     if (position === 'left') {
       return `${baseClasses} lg:left-4 left-0`;
     } else {
@@ -83,7 +83,7 @@ export const FloatingButton: React.FC<FloatingButtonProps> = ({
         `}
         title={title}
       >
-        <Icon className="w-5 h-5" />
+        <Icon className='w-5 h-5' />
       </button>
     </div>
   );

@@ -1,0 +1,50 @@
+# 构建输出
+dist/
+build/
+
+# 依赖
+node_modules/
+
+# 压缩文件
+*.min.js
+*.min.css
+
+# 静态资源
+public/
+
+# 日志文件
+logs/
+*.log
+
+# 环境变量文件
+.env
+.env.local
+.env.*.local
+
+# 版本控制
+.git/
+
+# IDE配置
+.vscode/
+.idea/
+
+# 临时文件
+.DS_Store
+Thumbs.db
+
+# 包管理器锁文件
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# TypeScript构建信息
+*.tsbuildinfo
+
+# Vercel
+.vercel/
+
+# 文档图片
+docs/images/
+
+# 其他
+*.md

@@ -6,17 +6,20 @@
 import { LLMClient } from '../api/client';
 import { generateRequestId } from '../utils/errorUtils';
 import { fixIncompleteJSON } from '../utils/jsonUtils';
-import { 
-  executeStreamLLMRequest, 
+import {
+  executeStreamLLMRequest,
   executeTextStreamLLMRequest,
   executeLLMRequest,
   type ProgressCallback,
-  type ValidationResult
+  type ValidationResult,
 } from '../utils/streamService';
 import type { Message } from '../api/client';
 
 // 重新导出类型以保持向后兼容
-export type { ProgressCallback, ValidationResult } from '../utils/streamService';
+export type {
+  ProgressCallback,
+  ValidationResult,
+} from '../utils/streamService';
 export type { JSONExtractionResult } from '../utils/jsonUtils';
 
 /**
@@ -49,7 +52,13 @@ export abstract class BaseLLMService {
       maxTokens?: number;
     } = {}
   ): Promise<string> {
-    return executeLLMRequest(this.llmClient, messages, requestId, operation, options);
+    return executeLLMRequest(
+      this.llmClient,
+      messages,
+      requestId,
+      operation,
+      options
+    );
   }
 
   /**
@@ -62,13 +71,21 @@ export abstract class BaseLLMService {
     options: {
       temperature?: number;
       maxTokens?: number;
-      extractJSON: (content: string) => import('../utils/jsonUtils').JSONExtractionResult;
+      extractJSON: (
+        content: string
+      ) => import('../utils/jsonUtils').JSONExtractionResult;
       validateJSON: (json: string) => ValidationResult<T>;
       parsePartial?: (json: string) => T | undefined;
       onProgress: ProgressCallback<T>;
     }
   ): Promise<T> {
-    return executeStreamLLMRequest(this.llmClient, messages, requestId, operation, options);
+    return executeStreamLLMRequest(
+      this.llmClient,
+      messages,
+      requestId,
+      operation,
+      options
+    );
   }
 
   /**
@@ -84,7 +101,13 @@ export abstract class BaseLLMService {
       onProgress?: (content: string, chunk: string) => void;
     } = {}
   ): Promise<string> {
-    return executeTextStreamLLMRequest(this.llmClient, messages, requestId, operation, options);
+    return executeTextStreamLLMRequest(
+      this.llmClient,
+      messages,
+      requestId,
+      operation,
+      options
+    );
   }
 
   /**

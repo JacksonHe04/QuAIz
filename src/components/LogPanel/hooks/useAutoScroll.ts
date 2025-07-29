@@ -12,25 +12,28 @@ export const useAutoScroll = <T extends HTMLElement = HTMLDivElement>(
 ) => {
   const scrollRef = useRef<T>(null);
   const [isAutoScroll, setIsAutoScroll] = useState(true);
-  
+
   // 当依赖变化且开启自动滚动时，滚动到底部
   useEffect(() => {
     if (isAutoScroll && scrollRef.current) {
       scrollToBottom(scrollRef.current);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAutoScroll, ...dependencies]);
-  
+
   /**
    * 处理滚动事件，检测用户是否手动滚动
    */
   const handleScroll = () => {
     if (scrollRef.current) {
-      const atBottom = isScrolledToBottom(scrollRef.current, AUTO_SCROLL_THRESHOLD);
+      const atBottom = isScrolledToBottom(
+        scrollRef.current,
+        AUTO_SCROLL_THRESHOLD
+      );
       setIsAutoScroll(atBottom);
     }
   };
-  
+
   /**
    * 强制滚动到底部并开启自动滚动
    */
@@ -40,11 +43,11 @@ export const useAutoScroll = <T extends HTMLElement = HTMLDivElement>(
       scrollToBottom(scrollRef.current);
     }
   };
-  
+
   return {
     scrollRef,
     isAutoScroll,
     handleScroll,
-    forceScrollToBottom
+    forceScrollToBottom,
   };
 };

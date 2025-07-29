@@ -30,7 +30,7 @@ export class StreamProcessor<T> {
       accumulatedContent: '',
       chunkCount: 0,
       finalResult: null,
-      streamSessionId: logger.stream.start(requestId, operation)
+      streamSessionId: logger.stream.start(requestId, operation),
     };
   }
 
@@ -51,7 +51,7 @@ export class StreamProcessor<T> {
       logger.llm.info(`接收${this.operation}数据块`, {
         requestId: this.requestId,
         chunkCount: this.state.chunkCount,
-        contentLength: this.state.accumulatedContent.length
+        contentLength: this.state.accumulatedContent.length,
       });
     }
 
@@ -64,26 +64,29 @@ export class StreamProcessor<T> {
    * @returns 是否已完成处理
    */
   private tryExtractAndValidate(): boolean {
-    const { extractJSON, validateJSON, parsePartial, onProgress } = this.options;
+    const { extractJSON, validateJSON, parsePartial, onProgress } =
+      this.options;
     const { json, isComplete } = extractJSON(this.state.accumulatedContent);
 
     if (json) {
       // 如果JSON完整，验证并解析
       if (isComplete) {
-        logger.llm.info(`检测到完整JSON，开始验证`, { requestId: this.requestId });
+        logger.llm.info(`检测到完整JSON，开始验证`, {
+          requestId: this.requestId,
+        });
         const validation = validateJSON(json);
         if (validation.isValid && validation.data) {
           this.state.finalResult = validation.data;
           logger.llm.success(`流式${this.operation}完成`, {
             requestId: this.requestId,
-            totalChunks: this.state.chunkCount
+            totalChunks: this.state.chunkCount,
           });
           onProgress(this.state.finalResult, 100);
           return true;
         } else {
           logger.llm.warning(`JSON验证失败，继续接收数据`, {
             requestId: this.requestId,
-            error: validation.error
+            error: validation.error,
           });
         }
       }
@@ -93,7 +96,9 @@ export class StreamProcessor<T> {
         try {
           const partialResult = parsePartial(json);
           if (partialResult) {
-            logger.llm.info(`解析到部分${this.operation}内容`, { requestId: this.requestId });
+            logger.llm.info(`解析到部分${this.operation}内容`, {
+              requestId: this.requestId,
+            });
           }
           onProgress(partialResult, 50);
         } catch {
@@ -116,16 +121,21 @@ export class StreamProcessor<T> {
    */
   finalize(): T {
     if (!this.state.finalResult) {
-      logger.llm.warning(`流式${this.operation}结束但未获得完整结果，尝试最终解析`, {
-        requestId: this.requestId
-      });
-      
+      logger.llm.warning(
+        `流式${this.operation}结束但未获得完整结果，尝试最终解析`,
+        {
+          requestId: this.requestId,
+        }
+      );
+
       const { json } = this.options.extractJSON(this.state.accumulatedContent);
       if (json) {
         const validation = this.options.validateJSON(json);
         if (validation.isValid && validation.data) {
           this.state.finalResult = validation.data;
-          logger.llm.success(`最终${this.operation}解析成功`, { requestId: this.requestId });
+          logger.llm.success(`最终${this.operation}解析成功`, {
+            requestId: this.requestId,
+          });
         }
       }
     }
@@ -133,7 +143,7 @@ export class StreamProcessor<T> {
     if (!this.state.finalResult) {
       logger.llm.error(`无法从LLM响应中提取有效的${this.operation}JSON`, {
         requestId: this.requestId,
-        contentLength: this.state.accumulatedContent.length
+        contentLength: this.state.accumulatedContent.length,
       });
       throw new Error(`无法从LLM响应中提取有效的${this.operation}JSON`);
     }
@@ -157,7 +167,7 @@ export class StreamProcessor<T> {
     logger.llm.error(`流式${this.operation}失败`, {
       requestId: this.requestId,
       error: error instanceof Error ? error.message : '未知错误',
-      chunkCount: this.state.chunkCount
+      chunkCount: this.state.chunkCount,
     });
     return handleLLMError(error, this.requestId, `流式${this.operation}`);
   }
@@ -179,14 +189,17 @@ export async function executeStreamLLMRequest<T>(
   operation: string,
   options: StreamRequestOptions<T>
 ): Promise<T> {
-  const { temperature = DEFAULT_LLM_CONFIG.temperature, maxTokens = DEFAULT_LLM_CONFIG.maxTokens } = options;
+  const {
+    temperature = DEFAULT_LLM_CONFIG.temperature,
+    maxTokens = DEFAULT_LLM_CONFIG.maxTokens,
+  } = options;
   const processor = new StreamProcessor(requestId, operation, options);
 
   try {
     for await (const chunk of llmClient.chatStream({
       messages,
       temperature,
-      max_tokens: maxTokens
+      max_tokens: maxTokens,
     })) {
       if (processor.processChunk(chunk)) {
         break;

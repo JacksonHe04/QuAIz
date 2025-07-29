@@ -4,8 +4,14 @@
  */
 
 import type { LLMClient } from '../api/client';
-import { QuizGenerationService, createQuizGenerationService } from './quizGenerationService';
-import { QuizGradingService, createQuizGradingService } from './quizGradingService';
+import {
+  QuizGenerationService,
+  createQuizGenerationService,
+} from './quizGenerationService';
+import {
+  QuizGradingService,
+  createQuizGradingService,
+} from './quizGradingService';
 
 /**
  * 服务集合接口
@@ -21,7 +27,7 @@ export interface QuizServices {
 export function createQuizServices(llmClient?: LLMClient): QuizServices {
   return {
     generation: createQuizGenerationService(llmClient),
-    grading: createQuizGradingService(llmClient)
+    grading: createQuizGradingService(llmClient),
   };
 }
 

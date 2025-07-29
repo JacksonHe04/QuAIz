@@ -17,6 +17,6 @@ export function useQuizNavigation() {
 
   return {
     currentQuestionIndex: answering.currentQuestionIndex,
-    goToQuestion
+    goToQuestion,
   };
 }

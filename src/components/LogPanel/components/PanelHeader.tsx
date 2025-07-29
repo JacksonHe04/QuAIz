@@ -23,36 +23,34 @@ export const PanelHeader: React.FC<PanelHeaderProps> = ({
   activeTab,
   currentCount,
   onClearCurrent,
-  onToggleVisibility
+  onToggleVisibility,
 }) => {
   const config = TAB_CONFIG[activeTab];
-  
+
   return (
-    <div className="bg-gray-900 text-white p-4 flex items-center justify-between">
+    <div className='bg-gray-900 text-white p-4 flex items-center justify-between'>
       {/* 标题信息 */}
-      <div className="flex items-center gap-3">
-        <span className="text-xl">{config.icon}</span>
+      <div className='flex items-center gap-3'>
+        <span className='text-xl'>{config.icon}</span>
         <div>
-          <h2 className="font-semibold">{config.title}</h2>
-          <p className="text-xs text-gray-300">
-            共 {currentCount} 条记录
-          </p>
+          <h2 className='font-semibold'>{config.title}</h2>
+          <p className='text-xs text-gray-300'>共 {currentCount} 条记录</p>
         </div>
       </div>
-      
+
       {/* 操作按钮 */}
-      <div className="flex items-center gap-2">
+      <div className='flex items-center gap-2'>
         <button
           onClick={onClearCurrent}
-          className="p-2 hover:bg-gray-700 rounded transition-colors"
+          className='p-2 hover:bg-gray-700 rounded transition-colors'
           title={`清空${config.title}`}
         >
           🗑️
         </button>
         <button
           onClick={onToggleVisibility}
-          className="p-2 hover:bg-gray-700 rounded transition-colors"
-          title="关闭面板"
+          className='p-2 hover:bg-gray-700 rounded transition-colors'
+          title='关闭面板'
         >
           ✕
         </button>

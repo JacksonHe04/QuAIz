@@ -25,15 +25,18 @@ export async function executeLLMRequest(
   operation: string,
   options: BaseRequestOptions = {}
 ): Promise<string> {
-  const { temperature = DEFAULT_LLM_CONFIG.temperature, maxTokens = DEFAULT_LLM_CONFIG.maxTokens } = options;
-  
-  try {    
+  const {
+    temperature = DEFAULT_LLM_CONFIG.temperature,
+    maxTokens = DEFAULT_LLM_CONFIG.maxTokens,
+  } = options;
+
+  try {
     const response = await llmClient.chat({
       messages,
       temperature,
-      max_tokens: maxTokens
+      max_tokens: maxTokens,
     });
-    
+
     logger.llm.info(`收到LLM响应，开始验证格式`, { requestId });
     return response.content;
   } catch (error) {

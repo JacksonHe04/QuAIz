@@ -8,7 +8,12 @@ export { LLMClient, defaultLLMClient, createLLMClient } from './client';
 export type { Message, LLMRequest } from './client';
 
 // 配置相关
-export type { LLMConfig, LLMResponse, LLMStreamResponse, LLMError } from './config';
+export type {
+  LLMConfig,
+  LLMResponse,
+  LLMStreamResponse,
+  LLMError,
+} from './config';
 export { DEFAULT_LLM_CONFIG, LLM_PROVIDERS } from './config';
 
 // 辅助工具类（可选导出，用于高级用法）

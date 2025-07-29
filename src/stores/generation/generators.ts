@@ -19,27 +19,30 @@ export const generateWithLLM = async (
     onProgress: (partialQuiz: Quiz | undefined, progress: number) => {
       stateManager.updateProgress(progress, partialQuiz);
     },
-    
+
     onQuestionComplete: (question: Question, questionIndex: number) => {
-      stateManager.updateStreamingQuestion(questionIndex, { 
-        ...question, 
-        isPartial: false 
+      stateManager.updateStreamingQuestion(questionIndex, {
+        ...question,
+        isPartial: false,
       });
       stateManager.updateCompletedQuestionCount(questionIndex + 1);
     },
-    
+
     onQuestionPartial: (
-      partialQuestion: Question & { isPartial?: boolean }, 
+      partialQuestion: Question & { isPartial?: boolean },
       questionIndex: number
     ) => {
-      stateManager.updateStreamingQuestion(questionIndex, { 
-        ...partialQuestion, 
-        isPartial: true 
+      stateManager.updateStreamingQuestion(questionIndex, {
+        ...partialQuestion,
+        isPartial: true,
       });
-    }
+    },
   };
-  
-  const quiz = await quizGenerationService.generateQuizStream(request, streamingOptions);
+
+  const quiz = await quizGenerationService.generateQuizStream(
+    request,
+    streamingOptions
+  );
   stateManager.setComplete(quiz);
 };
 
@@ -51,7 +54,7 @@ export const generateWithMock = async (
   stateManager: GenerationStateManager
 ): Promise<void> => {
   console.warn('LLM配置不完整，使用模拟API生成试卷');
-  
+
   const quiz = await mockGenerateQuiz(request);
   stateManager.setComplete(quiz);
 };
@@ -65,11 +68,11 @@ export const generateQuiz = async (
 ): Promise<void> => {
   // 设置生成中状态
   stateManager.setGenerating();
-  
+
   try {
     // 检查LLM配置是否完整
     const { isConfigured } = checkLLMConfig();
-    
+
     if (isConfigured) {
       // 使用真实LLM API生成试卷，支持流式渲染
       await generateWithLLM(request, stateManager);
@@ -79,7 +82,8 @@ export const generateQuiz = async (
     }
   } catch (error) {
     console.error('生成试卷失败:', error);
-    const errorMessage = error instanceof Error ? error.message : '生成试卷时发生未知错误';
+    const errorMessage =
+      error instanceof Error ? error.message : '生成试卷时发生未知错误';
     stateManager.setError(errorMessage);
   }
 };

@@ -3,31 +3,20 @@
  */
 
 // 导出类型定义
-export type {
-  LogEntry,
-  StreamChunk,
-  StreamSession,
-  LogState
-} from './types';
+export type { LogEntry, StreamChunk, StreamSession, LogState } from './types';
 
 // 导出操作接口
-export type {
-  LogActions,
-  StreamActions
-} from './actions';
+export type { LogActions, StreamActions } from './actions';
 
 // 导出创建函数
-export {
-  createLogActions,
-  createStreamActions
-} from './actions';
+export { createLogActions, createStreamActions } from './actions';
 
 // 导出工具函数
 export {
   generateId,
   getCurrentTimestamp,
   limitArrayLength,
-  removeFromArray
+  removeFromArray,
 } from './utils';
 
 // 导出日志器

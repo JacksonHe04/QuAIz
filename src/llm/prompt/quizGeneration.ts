@@ -19,7 +19,7 @@ const QUESTION_TYPE_DESCRIPTIONS = {
       "question": "题目内容",
       "options": ["选项A", "选项B", "选项C", "选项D"],
       "correctAnswer": 0
-    }`
+    }`,
   },
   'multiple-choice': {
     name: '多选题',
@@ -30,7 +30,7 @@ const QUESTION_TYPE_DESCRIPTIONS = {
       "question": "题目内容",
       "options": ["选项A", "选项B", "选项C", "选项D"],
       "correctAnswers": [0, 2]
-    }`
+    }`,
   },
   'fill-blank': {
     name: '填空题',
@@ -40,7 +40,7 @@ const QUESTION_TYPE_DESCRIPTIONS = {
       "type": "fill-blank",
       "question": "题目内容，其中___表示需要填空的地方，可以有多个___。",
       "correctAnswers": ["答案1", "答案2"]
-    }`
+    }`,
   },
   'short-answer': {
     name: '简答题',
@@ -50,7 +50,7 @@ const QUESTION_TYPE_DESCRIPTIONS = {
       "type": "short-answer",
       "question": "题目内容",
       "referenceAnswer": "参考答案"
-    }`
+    }`,
   },
   'code-output': {
     name: '代码输出题',
@@ -61,7 +61,7 @@ const QUESTION_TYPE_DESCRIPTIONS = {
       "question": "请写出以下代码的输出结果",
       "code": "console.log('Hello World');",
       "correctOutput": "Hello World"
-    }`
+    }`,
   },
   'code-writing': {
     name: '代码编写题',
@@ -72,8 +72,8 @@ const QUESTION_TYPE_DESCRIPTIONS = {
       "question": "请编写一个函数实现指定功能",
       "language": "javascript",
       "referenceCode": "function example() {\n  return 'Hello World';\n}"
-    }`
-  }
+    }`,
+  },
 } as const;
 
 /**
@@ -104,16 +104,21 @@ function generateSystemPrompt(): string {
  */
 function generateUserPrompt(request: GenerationRequest): string {
   const { subject, description, questionConfigs } = request;
-  
+
   // 构建题型要求说明
-  const questionTypeRequirements = questionConfigs.map((config, index) => {
-    const typeDesc = QUESTION_TYPE_DESCRIPTIONS[config.type];
-    return `${index + 1}. ${typeDesc.name}：${config.count}道题
+  const questionTypeRequirements = questionConfigs
+    .map((config, index) => {
+      const typeDesc = QUESTION_TYPE_DESCRIPTIONS[config.type];
+      return `${index + 1}. ${typeDesc.name}：${config.count}道题
    格式示例：${typeDesc.format}`;
-  }).join('\n\n');
-  
-  const totalQuestions = questionConfigs.reduce((sum, config) => sum + config.count, 0);
-  
+    })
+    .join('\n\n');
+
+  const totalQuestions = questionConfigs.reduce(
+    (sum, config) => sum + config.count,
+    0
+  );
+
   return `请为以下学科主题生成试卷：
 
 学科/主题：${subject}
@@ -147,63 +152,72 @@ export function generateQuizPrompt(request: GenerationRequest) {
   return [
     {
       role: 'system' as const,
-      content: generateSystemPrompt()
+      content: generateSystemPrompt(),
     },
     {
       role: 'user' as const,
-      content: generateUserPrompt(request)
-    }
+      content: generateUserPrompt(request),
+    },
   ];
 }
 
 /**
  * 验证生成的试卷JSON格式
  */
-export function validateQuizJSON(jsonStr: string): { isValid: boolean; error?: string; quiz?: Quiz } {
+export function validateQuizJSON(jsonStr: string): {
+  isValid: boolean;
+  error?: string;
+  quiz?: Quiz;
+} {
   const quiz = safeParseJSON<Record<string, unknown>>(jsonStr);
-  
+
   if (!quiz) {
     return {
       isValid: false,
-      error: 'JSON解析失败'
+      error: 'JSON解析失败',
     };
   }
-  
+
   try {
-    
     // 基础字段验证
     if (!quiz.id || !quiz.title || !Array.isArray(quiz.questions)) {
       return {
         isValid: false,
-        error: '试卷JSON缺少必要字段：id, title, questions'
+        error: '试卷JSON缺少必要字段：id, title, questions',
       };
     }
-    
+
     // 题目格式验证
     for (let i = 0; i < quiz.questions.length; i++) {
       const question = quiz.questions[i];
       if (!question.id || !question.type || !question.question) {
         return {
           isValid: false,
-          error: `第${i + 1}道题缺少必要字段：id, type, question`
+          error: `第${i + 1}道题缺少必要字段：id, type, question`,
         };
       }
-      
+
       // 根据题型验证特定字段
       switch (question.type) {
         case 'single-choice':
-          if (!Array.isArray(question.options) || typeof question.correctAnswer !== 'number') {
+          if (
+            !Array.isArray(question.options) ||
+            typeof question.correctAnswer !== 'number'
+          ) {
             return {
               isValid: false,
-              error: `第${i + 1}道单选题格式错误：缺少options或correctAnswer字段`
+              error: `第${i + 1}道单选题格式错误：缺少options或correctAnswer字段`,
             };
           }
           break;
         case 'multiple-choice':
-          if (!Array.isArray(question.options) || !Array.isArray(question.correctAnswers)) {
+          if (
+            !Array.isArray(question.options) ||
+            !Array.isArray(question.correctAnswers)
+          ) {
             return {
               isValid: false,
-              error: `第${i + 1}道多选题格式错误：缺少options或correctAnswers字段`
+              error: `第${i + 1}道多选题格式错误：缺少options或correctAnswers字段`,
             };
           }
           break;
@@ -211,7 +225,7 @@ export function validateQuizJSON(jsonStr: string): { isValid: boolean; error?: s
           if (!Array.isArray(question.correctAnswers)) {
             return {
               isValid: false,
-              error: `第${i + 1}道填空题格式错误：缺少correctAnswers字段`
+              error: `第${i + 1}道填空题格式错误：缺少correctAnswers字段`,
             };
           }
           break;
@@ -219,7 +233,7 @@ export function validateQuizJSON(jsonStr: string): { isValid: boolean; error?: s
           if (!question.referenceAnswer) {
             return {
               isValid: false,
-              error: `第${i + 1}道简答题格式错误：缺少referenceAnswer字段`
+              error: `第${i + 1}道简答题格式错误：缺少referenceAnswer字段`,
             };
           }
           break;
@@ -227,7 +241,7 @@ export function validateQuizJSON(jsonStr: string): { isValid: boolean; error?: s
           if (!question.code || !question.correctOutput) {
             return {
               isValid: false,
-              error: `第${i + 1}道代码输出题格式错误：缺少code或correctOutput字段`
+              error: `第${i + 1}道代码输出题格式错误：缺少code或correctOutput字段`,
             };
           }
           break;
@@ -235,21 +249,21 @@ export function validateQuizJSON(jsonStr: string): { isValid: boolean; error?: s
           if (!question.language || !question.referenceCode) {
             return {
               isValid: false,
-              error: `第${i + 1}道代码编写题格式错误：缺少language或referenceCode字段`
+              error: `第${i + 1}道代码编写题格式错误：缺少language或referenceCode字段`,
             };
           }
           break;
       }
     }
-    
+
     return {
       isValid: true,
-      quiz: quiz as unknown as Quiz
+      quiz: quiz as unknown as Quiz,
     };
   } catch (error) {
     return {
       isValid: false,
-      error: `JSON解析失败: ${error instanceof Error ? error.message : '未知错误'}`
+      error: `JSON解析失败: ${error instanceof Error ? error.message : '未知错误'}`,
     };
   }
 }

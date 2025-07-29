@@ -15,7 +15,7 @@ interface GenerationPreviewProps {
 export const GenerationPreview: React.FC<GenerationPreviewProps> = ({
   questionConfigs,
   totalQuestions,
-  error
+  error,
 }) => {
   if (questionConfigs.length === 0 && !error) {
     return null;
@@ -25,13 +25,15 @@ export const GenerationPreview: React.FC<GenerationPreviewProps> = ({
     <>
       {/* 统计信息 */}
       {questionConfigs.length > 0 && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-          <h4 className="font-medium text-blue-900 mb-2">生成预览</h4>
-          <div className="space-y-1 text-sm text-blue-800">
+        <div className='bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6'>
+          <h4 className='font-medium text-blue-900 mb-2'>生成预览</h4>
+          <div className='space-y-1 text-sm text-blue-800'>
             <p>总题目数量: {totalQuestions} 题</p>
-            <div className="flex flex-wrap gap-4">
-              {questionConfigs.map((config) => {
-                const option = QUESTION_TYPE_OPTIONS.find(opt => opt.type === config.type);
+            <div className='flex flex-wrap gap-4'>
+              {questionConfigs.map(config => {
+                const option = QUESTION_TYPE_OPTIONS.find(
+                  opt => opt.type === config.type
+                );
                 return (
                   <span key={config.type}>
                     {option?.label}: {config.count} 题
@@ -45,8 +47,8 @@ export const GenerationPreview: React.FC<GenerationPreviewProps> = ({
 
       {/* 错误信息 */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-          <p className="text-red-800">{error}</p>
+        <div className='bg-red-50 border border-red-200 rounded-lg p-4 mb-6'>
+          <p className='text-red-800'>{error}</p>
         </div>
       )}
     </>

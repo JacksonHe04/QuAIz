@@ -7,7 +7,10 @@ import type { JSONExtractionResult } from '../json';
 /**
  * 流式处理进度回调类型
  */
-export type ProgressCallback<T> = (partialData: T | undefined, progress: number) => void;
+export type ProgressCallback<T> = (
+  partialData: T | undefined,
+  progress: number
+) => void;
 
 /**
  * JSON验证结果接口
