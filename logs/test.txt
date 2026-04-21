@@ -1,0 +1,47 @@
+{
+  "id": "quiz_1753708371911",
+  "title": "前端开发 - 练习题",
+  "questions": [
+    {
+      "id": "q1",
+      "type": "single-choice",
+      "question": "以下哪个不是JavaScript的基本数据类型？",
+      "options": ["String", "Number", "Boolean", "Array"],
+      "correctAnswer": 3
+    },
+    {
+      "id": "q2",
+      "type": "multiple-choice",
+      "question": "以下哪些是CSS盒模型的组成部分？",
+      "options": ["Content", "Padding", "Border", "Margin"],
+      "correctAnswers": [0, 1, 2, 3]
+    },
+    {
+      "id": "q3",
+      "type": "fill-blank",
+      "question": "在HTML中，使用___标签来定义文档的标题。",
+      "correctAnswers": ["<title>"]
+    },
+    {
+      "id": "q4",
+      "type": "short-answer",
+      "question": "简述JavaScript中的闭包是什么。",
+      "referenceAnswer": "闭包是指一个函数可以访问其外部函数作用域中的变量，即使外部函数已经返回。"
+    },
+    {
+      "id": "q5",
+      "type": "code-output",
+      "question": "请写出以下代码的输出结果",
+      "code": "console.log(2 + '2');",
+      "correctOutput": "22"
+    },
+    {
+      "id": "q6",
+      "type": "code-writing",
+      "question": "请编写一个函数，接收一个数字参数并返回其平方值",
+      "language": "javascript",
+      "referenceCode": "function square(num) {\n  return num * num;\n}"
+    }
+  ],
+  "createdAt": 1753708371911
+}

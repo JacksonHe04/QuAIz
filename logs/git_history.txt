@@ -1,0 +1,64 @@
+commit 4103f950d3ac012a83e7ad0eaf679da3e5bddbf7
+Author: 何锦诚 <JacksonHe04@outlook.com>
+Date:   Tue Jul 29 17:37:43 2025 +0800
+
+    chore(LogPanel): 重构日志面板组件结构并添加性能优化文档
+    
+    重构日志面板组件结构，将组件拆分为更小的模块化文件，并添加性能优化文档。主要变更包括：
+    1. 将组件拆分为多个子组件，如FloatingToggle、BottomControls等
+    2. 添加虚拟化滚动列表组件VirtualizedLogList
+    3. 实现优化后的日志条目组件OptimizedLogEntry
+    4. 添加性能优化文档PERFORMANCE_OPTIMIZATION.md
+    5. 更新README文档说明组件结构和功能
+    6. 添加工具函数和常量文件
+    7. 实现自动滚动hook
+    
+    这些变更提高了代码可维护性和日志面板的性能表现
+
+commit 6707e5d717508f98021bddb95c291a6f0061e253
+Author: 何锦诚 <JacksonHe04@outlook.com>
+Date:   Tue Jul 29 17:27:34 2025 +0800
+
+    perf(日志面板和流式渲染): 优化大量日志和题目渲染的性能
+    
+    - 使用react-window实现虚拟化滚动，支持1000+条日志无卡顿
+    - 通过React.memo和useMemo减少不必要的重新渲染
+    - 添加性能监控Hooks实时跟踪渲染指标
+    - 优化依赖项数组减少副作用触发频率
+    - 新增性能优化文档说明实现细节
+    - 更新相关依赖包支持新功能
+
+commit da756bcbc44c4f7536e247625f1872c3b7313729
+Author: 何锦诚 <JacksonHe04@outlook.com>
+Date:   Tue Jul 29 16:56:53 2025 +0800
+
+    perf(TimeRecorder): 优化时间记录器性能减少不必要的状态更新
+    
+    避免频繁的状态同步和更新，减少性能开销
+    - 添加状态更新阈值检查
+    - 优化同步触发条件
+    - 降低定时器更新频率
+    - 添加平均每题时间和题目总数显示
+
+commit b3b85d4980000511a3225d2ead3143f60cbaff72
+Author: 何锦诚 <JacksonHe04@outlook.com>
+Date:   Tue Jul 29 16:48:36 2025 +0800
+
+    feat: 添加时间记录功能及相关组件
+    
+    实现浮动时间记录功能，包括以下内容：
+    - 新增 FloatingPanel 和 FloatingButton 通用组件
+    - 添加 TimeRecorder 组件及优化版本
+    - 扩展 generation store 以支持时间记录状态
+    - 添加时间工具函数和测试用例
+    - 在关键页面集成时间记录组件
+
+commit 3e336b1e7f60e0112ace997ecd210eb7840b994c
+Author: 何锦诚 <JacksonHe04@outlook.com>
+Date:   Tue Jul 29 15:36:17 2025 +0800
+
+    refactor(llm): 统一LLM配置参数并优化日志记录
+    
+    将分散的LLM配置参数统一管理，使用DEFAULT_LLM_CONFIG作为默认值
+    移除冗余的日志记录，在关键位置添加更详细的请求参数日志
+    增加getConfig方法以获取当前LLM配置信息
